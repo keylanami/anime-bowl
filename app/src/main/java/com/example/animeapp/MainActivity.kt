@@ -1,47 +1,31 @@
 package com.example.animeapp
 
+import AnimeScreen
+import AnimeViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.animeapp.ui.theme.AnimeAppTheme
+import androidx.compose.material3.MaterialTheme
+import com.example.animeapp.data.remote.RetrofitClient
+import com.example.animeapp.data.repository.AnimeRepositoryImpl
+//import com.example.animeapp.ui.screen.AnimeScreen
+//import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        val api = RetrofitClient.api
+
+        val repository = AnimeRepositoryImpl(api)
+
+        val viewModel = AnimeViewModel(repository)
+
         setContent {
-            AnimeAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            MaterialTheme {
+                AnimeScreen(viewModel = viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AnimeAppTheme {
-        Greeting("Android")
     }
 }

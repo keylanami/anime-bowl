@@ -8,5 +8,7 @@ data class FavAnimeEntity(
     val title: String,
     val type: String,
     val episodes: Int,
+    val score: Double,
+    val rank: Int,
     val image_url: String
 )

@@ -11,6 +11,6 @@ fun AnimeDTO.toAnime(): Anime{
         episodes = episodes?: 0,
         rank = rank?: 0,
         score = score?: 0.0,
-        image_url = image_url.jpg.image_url
+        image_url = images.jpg.image_url
     )
 }
