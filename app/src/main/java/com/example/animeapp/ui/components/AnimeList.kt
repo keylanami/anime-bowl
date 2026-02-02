@@ -21,7 +21,7 @@ import com.example.animeapp.data.model.Anime
 fun AnimeList(animeList: List<Anime>) {
     LazyColumn {
         items(animeList) { anime ->
-            AnimeItem(anime)
+            AnimeItem(anime = anime, isFavorite = false, onFavoriteClick = {} )
         }
     }
 

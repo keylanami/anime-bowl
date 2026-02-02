@@ -1,3 +1,6 @@
+
+package com.example.animeapp.ui.screen
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,15 +23,20 @@ import com.example.animeapp.ui.components.AnimeList
 import com.example.animeapp.ui.components.ErrorView
 import com.example.animeapp.ui.components.LoadingView
 import com.example.animeapp.ui.state.AnimeUiState
+import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @Composable
 fun AnimeScreen(viewModel: AnimeViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val showSearch by remember { mutableStateOf(false) }
     var q by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.loadTopAnime()
     }
+
+
+
 
     Column(
         modifier = Modifier

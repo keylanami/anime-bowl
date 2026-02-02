@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,13 +29,14 @@ import com.example.animeapp.data.model.Anime
 
 
 @Composable
-fun AnimeItem(anime: Anime) {
+fun AnimeItem(anime: Anime, isFavorite: Boolean, onFavoriteClick: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 5.dp,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
     ) {
-
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -49,7 +55,6 @@ fun AnimeItem(anime: Anime) {
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.weight(1f)
             ) {
-
                 Text(
                     text = anime.title,
                     style = MaterialTheme.typography.titleMedium,
@@ -67,12 +72,25 @@ fun AnimeItem(anime: Anime) {
                 )
             }
 
-            Text(
-                text = "#${anime.rank}",
-                style = MaterialTheme.typography.labelLarge
-            )
+            Column(horizontalAlignment = Alignment.End) {
+
+                Text(
+                    text = "#${anime.rank}",
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                IconButton(
+                    onClick = onFavoriteClick
+                ) {
+                    Icon(
+                        imageVector =
+                            if (isFavorite) Icons.Filled.Favorite
+                            else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Favorite"
+                    )
+                }
+            }
         }
-        
-        Spacer(modifier = Modifier.height(12.dp))
     }
 }
+
