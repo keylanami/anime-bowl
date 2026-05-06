@@ -9,6 +9,7 @@ import com.example.animeapp.data.local.dao.FavAnimeDao
 import com.example.animeapp.data.local.db.AnimeDatabase
 import com.example.animeapp.data.remote.RetrofitClient
 import com.example.animeapp.data.repository.AnimeRepositoryImpl
+import com.example.animeapp.ui.navigation.AppNavigation
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 import com.example.animeapp.ui.screen.AnimeScreen
 //import com.example.animeapp.ui.viewmodel.AnimeViewModel
@@ -34,7 +35,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                AnimeScreen(viewModel = viewModel)
+                AppNavigation(viewModel = viewModel)
             }
         }
     }
