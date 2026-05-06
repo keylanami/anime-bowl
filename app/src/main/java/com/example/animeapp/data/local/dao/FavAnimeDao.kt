@@ -10,11 +10,10 @@ import com.example.animeapp.data.local.entity.FavAnimeEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-
 interface FavAnimeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addToFav(anime: FavAnimeEntity)
+    suspend fun insertAnime(anime: FavAnimeEntity)
 
     @Update
     suspend fun updateAnime(anime: FavAnimeEntity)
@@ -22,18 +21,15 @@ interface FavAnimeDao {
     @Delete
     suspend fun deleteAnime(anime: FavAnimeEntity)
 
-
-    @Query("delete from fav_anime where mal_id = :malId")
-    suspend fun deleteFavAnime(malId: Int)
+    @Query("select * from fav_anime order by title asc")
+    fun getFavAnimeSorted(): Flow<List<FavAnimeEntity>>
 
     @Query("select * from fav_anime where id = :id")
     suspend fun getAnimeById(id: Int): FavAnimeEntity?
 
-    @Query("select * from fav_anime order by title asc")
-    fun getFavAnime(): Flow<List<FavAnimeEntity>>
-
     @Query("select exists(select 1 from fav_anime where mal_id = :malId)")
     suspend fun isFavorite(malId: Int): Boolean
 
+    @Query("delete from fav_anime where mal_id = :malId")
+    suspend fun deleteByMalId(malId: Int)
 }
-
