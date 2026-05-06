@@ -1,13 +1,11 @@
 package com.example.animeapp.ui.viewmodel
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.animeapp.data.model.Anime
 import com.example.animeapp.data.repository.AnimeRepository
 import com.example.animeapp.ui.state.AnimeUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class AnimeViewModel(
@@ -17,12 +15,12 @@ class AnimeViewModel(
     private val _uiState = MutableStateFlow<AnimeUiState>(AnimeUiState.Loading)
     val uiState: StateFlow<AnimeUiState> = _uiState
 
-    private val _favoriteIds = MutableStateFlow<Set<Int>>(emptySet())
-    val favoriteIds: StateFlow<Set<Int>> = _favoriteIds
-
-    private val _favoriteList = MutableStateFlow<List<Anime>>(emptyList())
-    val favoriteList: StateFlow<List<Anime>> = _favoriteList
-
+    val favoriteList: StateFlow<List<Anime>> = repository.getFavAnime()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     fun loadTopAnime() {
         viewModelScope.launch {
@@ -31,45 +29,44 @@ class AnimeViewModel(
                 val animeList = repository.getTopAnime()
                 _uiState.value = AnimeUiState.Success(animeList)
             } catch (e: Exception) {
-                _uiState.value = AnimeUiState.Error(
-                    e.message ?: "Unknown error"
-                )
+                _uiState.value = AnimeUiState.Error(e.message ?: "Gagal memuat data")
             }
         }
     }
 
     fun searchAnime(query: String) {
+        if (query.isBlank()) return
         viewModelScope.launch {
             _uiState.value = AnimeUiState.Loading
             try {
                 val animeList = repository.searchAnime(query)
                 _uiState.value = AnimeUiState.Success(animeList)
             } catch (e: Exception) {
-                _uiState.value = AnimeUiState.Error(
-                    e.message ?: "Unknown error"
-                )
+                _uiState.value = AnimeUiState.Error(e.message ?: "Pencarian gagal")
             }
         }
     }
 
-    fun loadFav(){
-        viewModelScope.launch {
-            val favAnime = repository.getFavAnime()
-            _favoriteList.value = favAnime
-            _favoriteIds.value = favAnime.map { it.id }.toSet()
-        }
+    fun insertAnime(anime: Anime) = viewModelScope.launch {
+        repository.insertAnime(anime)
     }
 
-    fun toggleFavorite(anime: Anime) {
+    fun updateAnime(anime: Anime) = viewModelScope.launch {
+        repository.updateAnime(anime)
+    }
+
+    fun deleteAnime(anime: Anime) = viewModelScope.launch {
+        repository.deleteAnime(anime)
+    }
+
+    fun toggleFavoriteFromApi(anime: Anime) {
         viewModelScope.launch {
-            if (_favoriteIds.value.contains(anime.id)) {
-                repository.deleteFav(anime.id)
+            val exists = repository.isFavorite(anime.mal_id ?: 0)
+            if (exists) {
+                repository.deleteByMalId(anime.mal_id ?: 0)
             } else {
-                repository.addToFav(anime)
+                repository.insertAnime(anime)
             }
-            loadFav()
         }
     }
-
-
 }
