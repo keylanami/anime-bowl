@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 data class FavAnimeEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val mal_id: Int? = null,
     val title: String,
     val type: String,
     val episodes: Int,
