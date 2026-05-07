@@ -3,7 +3,10 @@ package com.example.animeapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.room.Room
 import com.example.animeapp.data.local.dao.FavAnimeDao
 import com.example.animeapp.data.local.db.AnimeDatabase
@@ -35,7 +38,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                AppNavigation(viewModel = viewModel)
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AppNavigation(viewModel = viewModel)
+                }
+
             }
         }
     }
