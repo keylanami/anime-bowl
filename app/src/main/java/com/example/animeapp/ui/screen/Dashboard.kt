@@ -1,4 +1,3 @@
-
 package com.example.animeapp.ui.screen
 
 import androidx.compose.foundation.layout.Column
@@ -26,9 +25,8 @@ import com.example.animeapp.ui.state.AnimeUiState
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @Composable
-fun AnimeScreen(viewModel: AnimeViewModel) {
+fun AnimeScreen(viewModel: AnimeViewModel, onNavigateUp: () -> Boolean) {
     val uiState by viewModel.uiState.collectAsState()
-    val showSearch by remember { mutableStateOf(false) }
     var q by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -59,7 +57,6 @@ fun AnimeScreen(viewModel: AnimeViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
         when (uiState) {
             is AnimeUiState.Loading -> {
                 LoadingView()
@@ -67,7 +64,12 @@ fun AnimeScreen(viewModel: AnimeViewModel) {
 
             is AnimeUiState.Success -> {
                 val animeList = (uiState as AnimeUiState.Success).animeList
-                AnimeList(animeList)
+                AnimeList(
+                    animeList = animeList,
+                    viewModel = viewModel,
+                    // Tambahkan aksi kosong atau navigasi sesuai kebutuhan untuk hasil API
+                    onItemClick = { /* Do nothing for API items for now */ }
+                )
             }
 
             is AnimeUiState.Error -> {

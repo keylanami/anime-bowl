@@ -12,11 +12,11 @@ import com.example.animeapp.ui.screen.FormScreen
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @Composable
-fun AppNavigation(viewModel: AnimeViewModel) {
+fun AppNavigation(viewModel: AnimeViewModel, onNavigateUp: () -> Unit) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Screen.Main.route) {
-        // Layar 1: Diary / Local DB (Letterboxd Home)
+
         composable(Screen.Main.route) {
             FavoriteScreen(
                 viewModel = viewModel,
@@ -26,7 +26,6 @@ fun AppNavigation(viewModel: AnimeViewModel) {
             )
         }
 
-        // Layar 2: API Search (Letterboxd Discover)
         composable(Screen.Search.route) {
             AnimeScreen(
                 viewModel = viewModel,
@@ -34,7 +33,6 @@ fun AppNavigation(viewModel: AnimeViewModel) {
             )
         }
 
-        // Layar 3: Form Input / Update (Letterboxd Log Review)
         composable(
             route = Screen.Form.route,
             arguments = listOf(navArgument("animeId") { type = NavType.IntType })

@@ -1,5 +1,6 @@
 package com.example.animeapp.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,11 +16,14 @@ import com.example.animeapp.data.model.Anime
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @Composable
-fun AnimeItem(anime: Anime, viewModel: AnimeViewModel) {
+fun AnimeItem(
+    anime: Anime,
+    viewModel: AnimeViewModel,
+    onItemClick: () -> Unit // Sisakan ini untuk navigasi form
+) {
     var showMenu by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
-    // Dialog Konfirmasi Hapus (Syarat 4.b)
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -40,16 +44,21 @@ fun AnimeItem(anime: Anime, viewModel: AnimeViewModel) {
     Surface(
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 5.dp,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp, vertical = 4.dp)
+            .clickable { onItemClick() } // ADD THIS: Supaya item bisa diklik untuk edit
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = anime.image_url.ifEmpty { "https://via.placeholder.com/150" }, // Fallback img
+                model = anime.image_url.ifEmpty { "https://via.placeholder.com/150" },
                 contentDescription = anime.title,
-                modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp))
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -58,10 +67,13 @@ fun AnimeItem(anime: Anime, viewModel: AnimeViewModel) {
                 Text(text = anime.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
                 Text(text = "Status: ${anime.status}", style = MaterialTheme.typography.bodySmall)
                 Text(text = "Rating: ⭐ ${anime.score}", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Catatan: ${anime.userNote.ifEmpty { "-" }}", style = MaterialTheme.typography.bodySmall, maxLines = 2)
+                Text(
+                    text = "Catatan: ${anime.userNote.ifEmpty { "-" }}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2
+                )
             }
 
-            // Menu Overflow (Syarat 4.a)
             Box {
                 IconButton(onClick = { showMenu = !showMenu }) {
                     Icon(Icons.Filled.MoreVert, contentDescription = "Menu")

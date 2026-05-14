@@ -1,6 +1,5 @@
 package com.example.animeapp.ui.screen
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.animeapp.data.local.UserPreferences
 import com.example.animeapp.data.local.pref.UserPreferences
 import com.example.animeapp.ui.components.AnimeItem
 import com.example.animeapp.ui.components.EmptyFavView
@@ -42,11 +40,9 @@ fun FavoriteScreen(
             TopAppBar(
                 title = { Text("My Diary") },
                 actions = {
-                    // Tombol untuk Toggle DataStore (Syarat 5.b)
                     IconButton(onClick = { coroutineScope.launch { userPreferences.toggleGridMode() } }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Toggle View")
                     }
-                    // Tombol ke halaman API
                     IconButton(onClick = onNavigateToSearch) {
                         Icon(Icons.Filled.Search, contentDescription = "Search API")
                     }
@@ -70,9 +66,12 @@ fun FavoriteScreen(
                         contentPadding = PaddingValues(bottom = 80.dp, start = 8.dp, end = 8.dp, top = 8.dp)
                     ) {
                         items(favorites) { anime ->
-                            Box(modifier = Modifier.clickable { onNavigateToEdit(anime.id) }) {
-                                AnimeItem(anime = anime, viewModel = viewModel)
-                            }
+                            // Hapus bungkus Box, oper navigasi langsung ke dalam item
+                            AnimeItem(
+                                anime = anime,
+                                viewModel = viewModel,
+                                onItemClick = { onNavigateToEdit(anime.id) }
+                            )
                         }
                     }
                 } else {
@@ -81,9 +80,12 @@ fun FavoriteScreen(
                         contentPadding = PaddingValues(bottom = 80.dp, start = 8.dp, end = 8.dp, top = 8.dp)
                     ) {
                         items(favorites) { anime ->
-                            Box(modifier = Modifier.clickable { onNavigateToEdit(anime.id) }) {
-                                AnimeItem(anime = anime, viewModel = viewModel)
-                            }
+                            // Hapus bungkus Box, oper navigasi langsung ke dalam item
+                            AnimeItem(
+                                anime = anime,
+                                viewModel = viewModel,
+                                onItemClick = { onNavigateToEdit(anime.id) }
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
