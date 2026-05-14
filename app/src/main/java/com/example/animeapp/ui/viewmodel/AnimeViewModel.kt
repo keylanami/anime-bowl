@@ -69,4 +69,17 @@ class AnimeViewModel(
             }
         }
     }
+
+    private val _selectedAnime = MutableStateFlow<Anime?>(null)
+    val selectedAnime: StateFlow<Anime?> = _selectedAnime
+
+    fun getAnimeById(id: Int) {
+        viewModelScope.launch {
+            _selectedAnime.value = repository.getAnimeById(id)
+        }
+    }
+
+    fun clearSelectedAnime() {
+        _selectedAnime.value = null
+    }
 }

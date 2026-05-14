@@ -35,9 +35,6 @@ fun AnimeScreen(viewModel: AnimeViewModel) {
         viewModel.loadTopAnime()
     }
 
-
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
