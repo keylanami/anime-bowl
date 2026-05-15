@@ -9,7 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.animeapp.data.model.Anime
@@ -24,14 +27,32 @@ fun LogAnimeItem(anime: Anime, onEdit: () -> Unit, onDelete: () -> Unit) {
                 model = anime.image_url,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
+                placeholder = ColorPainter(Color.LightGray),
+                error = ColorPainter(Color.LightGray),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
             )
-            Column(Modifier.padding(8.dp)) {
-                Text(anime.title, maxLines = 1, style = MaterialTheme.typography.titleSmall)
-                Text("⭐ ${anime.score}", style = MaterialTheme.typography.bodySmall)
+            Column(Modifier.padding(12.dp)) {
+                Text(anime.title, maxLines = 1, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "⭐ ${anime.score} • ${anime.status}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                if (anime.userNote.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "\"${anime.userNote}\"",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontStyle = FontStyle.Italic,
+                        maxLines = 2
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     IconButton(onClick = onEdit) {
                         Icon(

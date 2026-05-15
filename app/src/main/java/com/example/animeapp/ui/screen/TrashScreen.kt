@@ -27,7 +27,6 @@ fun TrashScreen(
 ) {
     val trashedItems by viewModel.trashedList.collectAsState()
 
-    // State untuk Dialog Konfirmasi
     var showDialog by remember { mutableStateOf(false) }
     var animeToDelete by remember { mutableStateOf<Anime?>(null) }
 
