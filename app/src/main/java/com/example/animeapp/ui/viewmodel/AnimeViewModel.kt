@@ -82,4 +82,21 @@ class AnimeViewModel(
     fun clearSelectedAnime() {
         _selectedAnime.value = null
     }
+
+    val trashedList: StateFlow<List<Anime>> = repository.getTrashedAnime()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+
+    fun moveToTrash(id: Int) = viewModelScope.launch {
+        repository.moveToTrash(id)
+    }
+
+    fun restoreFromTrash(id: Int) = viewModelScope.launch {
+        repository.restoreFromTrash(id)
+    }
+
 }
