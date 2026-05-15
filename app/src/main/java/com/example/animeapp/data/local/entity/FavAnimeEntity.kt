@@ -15,5 +15,6 @@ data class FavAnimeEntity(
     val image_url: String,
 
     val status: String,
-    val user_note: String
+    val user_note: String,
+    val is_in_trash: Boolean = false
 )

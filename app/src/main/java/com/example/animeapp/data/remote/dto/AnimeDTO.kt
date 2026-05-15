@@ -7,5 +7,6 @@ data class AnimeDTO(
     val episodes: Int?,
     val score: Double?,
     val rank: Int?,
-    val images: ImagesDTO
+    val images: ImagesDTO,
+    val is_in_trash: Boolean = false
 )
