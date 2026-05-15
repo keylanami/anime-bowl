@@ -94,7 +94,7 @@ fun TrashScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
-                        IconButton(onClick = { viewModel.restoreFromTrash(anime.id) }) {
+                        IconButton(onClick = { viewModel.restoreFromTrash(anime) }) {
                             Icon(Icons.Filled.Refresh, contentDescription = "Restore")
                         }
 

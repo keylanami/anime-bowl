@@ -91,12 +91,12 @@ class AnimeViewModel(
         )
 
 
-    fun moveToTrash(id: Int) = viewModelScope.launch {
-        repository.moveToTrash(id)
+    fun moveToTrash(anime: Anime) = viewModelScope.launch {
+        repository.updateAnime(anime.copy(is_in_trash = true))
     }
 
-    fun restoreFromTrash(id: Int) = viewModelScope.launch {
-        repository.restoreFromTrash(id)
+    fun restoreFromTrash(anime: Anime) = viewModelScope.launch {
+        repository.updateAnime(anime.copy(is_in_trash = false))
     }
 
     fun setSelectedAnimeFromApi(anime: Anime) {

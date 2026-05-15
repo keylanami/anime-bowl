@@ -97,7 +97,7 @@ fun ProfileScreen(
                         LogAnimeItem(
                             anime,
                             onEdit = { onNavigateToEdit(anime.id) },
-                            onDelete = { viewModel.moveToTrash(anime.id) })
+                            onDelete = { viewModel.moveToTrash(anime) })
                     }
                 }
             } else {
@@ -111,7 +111,7 @@ fun ProfileScreen(
                         LogAnimeItem(
                             anime,
                             onEdit = { onNavigateToEdit(anime.id) },
-                            onDelete = { viewModel.moveToTrash(anime.id) })
+                            onDelete = { viewModel.moveToTrash(anime) })
                         Spacer(Modifier.height(8.dp))
                     }
                 }
