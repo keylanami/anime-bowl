@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -39,12 +40,11 @@ fun AppNavigation(viewModel: AnimeViewModel) {
 
     Scaffold { paddingValues ->
         Box(Modifier.fillMaxSize().padding(paddingValues)) {
-
             NavHost(navController, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) {
-                    HomeScreen(viewModel, onLogAnime = { anime ->
+                    HomeScreen(viewModel, onNavigateToForm = { anime, isEdit ->
                         viewModel.setSelectedAnimeFromApi(anime)
-                        navController.navigate(Screen.Form.createRoute(0))
+                        navController.navigate(Screen.Form.createRoute(if (isEdit) anime.id else 0))
                     })
                 }
                 composable(Screen.Profile.route) {
@@ -57,7 +57,7 @@ fun AppNavigation(viewModel: AnimeViewModel) {
                 composable(Screen.Trash.route) {
                     TrashScreen(
                         viewModel = viewModel,
-                        onNavigateUp = {navController.navigateUp()}
+                        onNavigateUp = { navController.navigateUp() }
                     )
                 }
                 composable(
@@ -69,18 +69,21 @@ fun AppNavigation(viewModel: AnimeViewModel) {
                 }
             }
 
+            // FIX NAVBAR POSISI DI BAWAH
             if (currentRoute != Screen.Form.route) {
-                Navbar(
-                    currentRoute = currentRoute ?: Screen.Home.route,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            popUpTo(Screen.Home.route) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    onAddClick = { showBottomSheet = true }
-                )
+                Box(modifier = Modifier.align(Alignment.BottomCenter)) {
+                    Navbar(
+                        currentRoute = currentRoute ?: Screen.Home.route,
+                        onNavigate = { route ->
+                            navController.navigate(route) {
+                                popUpTo(Screen.Home.route) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        onAddClick = { showBottomSheet = true }
+                    )
+                }
             }
         }
 
