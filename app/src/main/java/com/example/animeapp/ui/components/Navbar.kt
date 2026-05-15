@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,7 +23,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Navbar(
     currentRoute: String,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onAddClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -46,6 +48,13 @@ fun Navbar(
                     isSelected = currentRoute == "home",
                     onClick = { onNavigate("home") }
                 )
+
+                NavItem(
+                    icon = Icons.Filled.Search,
+                    isSelected = false,
+                    onClick = onAddClick
+                )
+
                 NavItem(
                     icon = Icons.Filled.Person,
                     isSelected = currentRoute == "profile",
