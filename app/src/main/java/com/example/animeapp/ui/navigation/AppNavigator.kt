@@ -19,8 +19,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.animeapp.ui.components.Navbar
+import com.example.animeapp.ui.components.SearchLogBottomSheet
 import com.example.animeapp.ui.screen.FormScreen
 import com.example.animeapp.ui.screen.HomeScreen
+import com.example.animeapp.ui.screen.ProfileScreen
+import com.example.animeapp.ui.screen.TrashScreen
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 
@@ -39,7 +42,7 @@ fun AppNavigation(viewModel: AnimeViewModel) {
 
             if (currentRoute != Screen.Form.route) {
                 Navbar(
-                    currentRoute = currentRoute,
+                    currentRoute = currentRoute ?: Screen.Home.route,
                     onNavigate = { route ->
                         navController.navigate(route) {
                             popUpTo(Screen.Home.route) { saveState = true }
@@ -68,7 +71,10 @@ fun AppNavigation(viewModel: AnimeViewModel) {
                     })
                 }
                 composable(Screen.Trash.route) {
-                    TrashScreen(viewModel)
+                    TrashScreen(
+                        viewModel = viewModel,
+                        onNavigateUp = {navController.navigateUp()}
+                        )
                 }
                 composable(
                     route = Screen.Form.route,

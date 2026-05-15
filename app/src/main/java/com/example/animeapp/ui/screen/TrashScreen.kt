@@ -3,40 +3,88 @@ package com.example.animeapp.ui.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrashScreen(viewModel: AnimeViewModel) {
+fun TrashScreen(
+    viewModel: AnimeViewModel,
+    onNavigateUp: () -> Unit
+) {
     val trashedItems by viewModel.trashedList.collectAsState()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Recycle Bin") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Recycle Bin") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                }
+            )
+        }
     ) { paddingValues ->
-        LazyColumn(Modifier.padding(paddingValues).fillMaxSize()) {
+        LazyColumn(Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             items(trashedItems) { anime ->
-                ListItem(
-                    headlineContent = { Text(anime.title) },
-                    supportingContent = { Text("Reason: Trashed") },
-                    trailingContent = {
-                        Row {
-                            IconButton(onClick = { viewModel.restoreFromTrash(anime.id) }) {
-                                Icon(Icons.Filled.Refresh, contentDescription = "Restore")
-                            }
-                            IconButton(onClick = { viewModel.deleteAnime(anime) }) {
-                                Icon(Icons.Filled.DeleteForever, contentDescription = "Delete Permanent")
-                            }
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        AsyncImage(
+                            model = anime.image_url,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                anime.title,
+                                maxLines = 1,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                "Dihapus",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        IconButton(onClick = { viewModel.restoreFromTrash(anime.id) }) {
+                            Icon(Icons.Filled.Refresh, contentDescription = "Restore")
+                        }
+                        IconButton(onClick = { viewModel.deleteAnime(anime) }) {
+                            Icon(
+                                Icons.Filled.Delete,
+                                contentDescription = "Delete Permanent",
+                                tint = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
-                )
+                }
             }
         }
     }

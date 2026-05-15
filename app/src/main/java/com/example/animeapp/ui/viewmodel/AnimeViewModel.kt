@@ -99,4 +99,8 @@ class AnimeViewModel(
         repository.restoreFromTrash(id)
     }
 
+    fun setSelectedAnimeFromApi(anime: Anime) {
+        _selectedAnime.value = anime
+    }
+
 }

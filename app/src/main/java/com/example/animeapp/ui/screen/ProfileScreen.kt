@@ -1,6 +1,11 @@
 package com.example.animeapp.ui.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -8,14 +13,24 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.animeapp.data.local.UserPreferences
+import com.example.animeapp.R
+import com.example.animeapp.data.local.pref.UserPreferences
 import com.example.animeapp.ui.components.LogAnimeItem
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 import kotlinx.coroutines.launch
@@ -36,40 +51,67 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Anime Logs") },
+                title = { Text("Anime Bowl") },
                 actions = {
                     IconButton(onClick = { scope.launch { userPreferences.toggleGridMode() } }) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Toggle Layout")
+                        Icon(
+
+                        painter = if (isGridMode) {
+                            painterResource(R.drawable.outline_grid_view_24)
+                        } else {
+                            painterResource(R.drawable.outline_grid_view_24)
+                        },
+                        contentDescription = "Toggle Layout"
+                        )
                     }
                     IconButton(onClick = onNavigateToTrash) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Recycle Bin", tint = MaterialTheme.colorScheme.error)
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = "Recycle Bin",
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             )
         }
     ) { paddingValues ->
         if (logs.isEmpty()) {
-            Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
                 Text("No reviews yet. Start logging!")
             }
         } else {
             if (isGridMode) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
                     contentPadding = PaddingValues(bottom = 100.dp, start = 8.dp, end = 8.dp)
                 ) {
                     items(logs) { anime ->
-                        LogAnimeItem(anime, onEdit = { onNavigateToEdit(anime.id) }, onDelete = { viewModel.moveToTrash(anime.id) })
+                        LogAnimeItem(
+                            anime,
+                            onEdit = { onNavigateToEdit(anime.id) },
+                            onDelete = { viewModel.moveToTrash(anime.id) })
                     }
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
                     contentPadding = PaddingValues(bottom = 100.dp, start = 16.dp, end = 16.dp)
                 ) {
                     items(logs) { anime ->
-                        LogAnimeItem(anime, onEdit = { onNavigateToEdit(anime.id) }, onDelete = { viewModel.moveToTrash(anime.id) })
+                        LogAnimeItem(
+                            anime,
+                            onEdit = { onNavigateToEdit(anime.id) },
+                            onDelete = { viewModel.moveToTrash(anime.id) })
                         Spacer(Modifier.height(8.dp))
                     }
                 }
