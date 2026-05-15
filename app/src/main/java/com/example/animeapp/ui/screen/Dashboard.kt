@@ -67,7 +67,6 @@ fun AnimeScreen(viewModel: AnimeViewModel, onNavigateUp: () -> Boolean) {
                 AnimeList(
                     animeList = animeList,
                     viewModel = viewModel,
-                    // Tambahkan aksi kosong atau navigasi sesuai kebutuhan untuk hasil API
                     onItemClick = { /* Do nothing for API items for now */ }
                 )
             }

@@ -9,14 +9,14 @@ import com.example.animeapp.ui.viewmodel.AnimeViewModel
 @Composable
 fun AnimeList(
     animeList: List<Anime>,
-    viewModel: AnimeViewModel, // Tambahkan ini sebagai jembatan
+    viewModel: AnimeViewModel,
     onItemClick: (Int) -> Unit
 ) {
     LazyColumn {
         items(animeList) { anime ->
             AnimeItem(
                 anime = anime,
-                viewModel = viewModel, // Oper viewModel ke AnimeItem
+                viewModel = viewModel,
                 onItemClick = { onItemClick(anime.id) }
             )
         }

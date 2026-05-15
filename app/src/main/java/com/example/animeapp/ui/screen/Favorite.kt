@@ -80,7 +80,6 @@ fun FavoriteScreen(
                         contentPadding = PaddingValues(bottom = 80.dp, start = 8.dp, end = 8.dp, top = 8.dp)
                     ) {
                         items(favorites) { anime ->
-                            // Hapus bungkus Box, oper navigasi langsung ke dalam item
                             AnimeItem(
                                 anime = anime,
                                 viewModel = viewModel,

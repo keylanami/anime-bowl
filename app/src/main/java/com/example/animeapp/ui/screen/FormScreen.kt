@@ -23,7 +23,7 @@ fun FormScreen(
     val isEditMode = animeId > 0
     val selectedAnime by viewModel.selectedAnime.collectAsState()
 
-    // 2 Komponen Input: TextField & Dropdown/Radio (Syarat 2.a)
+
     var title by remember { mutableStateOf("") }
     var score by remember { mutableStateOf("0.0") }
     var userNote by remember { mutableStateOf("") }
@@ -31,7 +31,7 @@ fun FormScreen(
 
     val statusOptions = listOf("Plan to Watch", "Watching", "Completed")
 
-    // Syarat 3.a: Pre-filled data saat Update
+
     LaunchedEffect(animeId) {
         if (isEditMode) {
             viewModel.getAnimeById(animeId)
@@ -101,7 +101,7 @@ fun FormScreen(
 
             Button(
                 onClick = {
-                    // Syarat 2.b & 3.c: Sanity Check & Toast
+
                     if (title.isBlank()) {
                         Toast.makeText(context, "Judul tidak boleh kosong!", Toast.LENGTH_SHORT).show()
                         return@Button
@@ -114,13 +114,13 @@ fun FormScreen(
 
                     val animeToSave = Anime(
                         id = if (isEditMode) animeId else 0,
-                        mal_id = selectedAnime?.mal_id, // Pertahankan MAL ID jika ada
+                        mal_id = selectedAnime?.mal_id,
                         title = title,
                         type = selectedAnime?.type ?: "Custom",
                         episodes = selectedAnime?.episodes ?: 0,
                         score = parsedScore,
                         rank = selectedAnime?.rank ?: 0,
-                        image_url = selectedAnime?.image_url ?: "", // Bisa diset default/kosong
+                        image_url = selectedAnime?.image_url ?: "",
                         status = status,
                         userNote = userNote
                     )
@@ -129,7 +129,7 @@ fun FormScreen(
                     else viewModel.insertAnime(animeToSave)
 
                     Toast.makeText(context, "Diary berhasil disimpan!", Toast.LENGTH_SHORT).show()
-                    onNavigateUp() // Kembali otomatis
+                    onNavigateUp()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

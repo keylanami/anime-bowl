@@ -19,7 +19,7 @@ import com.example.animeapp.ui.viewmodel.AnimeViewModel
 fun AnimeItem(
     anime: Anime,
     viewModel: AnimeViewModel,
-    onItemClick: () -> Unit // Sisakan ini untuk navigasi form
+    onItemClick: () -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
@@ -47,7 +47,7 @@ fun AnimeItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 4.dp, vertical = 4.dp)
-            .clickable { onItemClick() } // ADD THIS: Supaya item bisa diklik untuk edit
+            .clickable { onItemClick() }
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
