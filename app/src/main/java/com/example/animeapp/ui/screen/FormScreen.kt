@@ -2,6 +2,8 @@ package com.example.animeapp.ui.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,20 +26,16 @@ fun FormScreen(
     val isEditMode = animeId > 0
     val selectedAnime by viewModel.selectedAnime.collectAsState()
 
-
     var title by remember { mutableStateOf("") }
-    var score by remember { mutableStateOf("0.0") }
+    var score by remember { mutableStateOf("") }
     var userNote by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Plan to Watch") }
 
     val statusOptions = listOf("Plan to Watch", "Watching", "Completed")
 
-
     LaunchedEffect(animeId) {
         if (isEditMode) {
             viewModel.getAnimeById(animeId)
-        } else {
-            viewModel.clearSelectedAnime()
         }
     }
 
@@ -55,13 +53,22 @@ fun FormScreen(
             TopAppBar(
                 title = { Text(if (isEditMode) "Edit Diary" else "Log Anime Baru") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateUp) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali") }
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali"
+                        )
+                    }
                 }
             )
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             OutlinedTextField(
@@ -76,7 +83,8 @@ fun FormScreen(
                 value = score,
                 onValueChange = { score = it },
                 label = { Text("Rating (0.0 - 10.0)") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             Text("Status Tontonan:")
@@ -93,8 +101,10 @@ fun FormScreen(
             OutlinedTextField(
                 value = userNote,
                 onValueChange = { userNote = it },
-                label = { Text("Review / Catatan (Opsional)") },
-                modifier = Modifier.fillMaxWidth().height(120.dp),
+                label = { Text("Review / Catatan") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
                 maxLines = 5
             )
 
@@ -102,14 +112,25 @@ fun FormScreen(
 
             Button(
                 onClick = {
-
+                    // SANITY CHECK LENGKAP
                     if (title.isBlank()) {
-                        Toast.makeText(context, "Judul tidak boleh kosong!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Judul tidak boleh kosong!", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
+                    if (score.isBlank()) {
+                        Toast.makeText(context, "Rating tidak boleh kosong!", Toast.LENGTH_SHORT)
+                            .show()
+                        return@Button
+                    }
+
                     val parsedScore = score.toDoubleOrNull()
                     if (parsedScore == null || parsedScore < 0.0 || parsedScore > 10.0) {
-                        Toast.makeText(context, "Format rating salah (0-10)!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Format rating salah (0.0 - 10.0)!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@Button
                     }
 
@@ -121,7 +142,8 @@ fun FormScreen(
                         episodes = selectedAnime?.episodes ?: 0,
                         score = parsedScore,
                         rank = selectedAnime?.rank ?: 0,
-                        image_url = selectedAnime?.image_url ?: "",
+                        image_url = selectedAnime?.image_url
+                            ?: "",
                         status = status,
                         userNote = userNote
                     )
