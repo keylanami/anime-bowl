@@ -9,12 +9,15 @@ interface AnimeRepository {
 
 
     fun getFavAnime(): Flow<List<Anime>>
+    fun getTrashedAnime(): Flow<List<Anime>>
 
     suspend fun getAnimeById(id: Int): Anime?
     suspend fun insertAnime(anime: Anime)
     suspend fun updateAnime(anime: Anime)
-    suspend fun deleteAnime(anime: Anime)
 
+    suspend fun deleteAnime(anime: Anime)
+    suspend fun moveToTrash(id: Int)
+    suspend fun restoreFromTrash(id: Int)
 
     suspend fun deleteByMalId(malId: Int)
     suspend fun isFavorite(malId: Int): Boolean

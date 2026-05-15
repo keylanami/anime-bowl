@@ -26,6 +26,20 @@ class AnimeRepositoryImpl(
         }
     }
 
+    override fun getTrashedAnime(): Flow<List<Anime>> {
+        return dao.getTrashedAnime().map { list ->
+            list.map { it.toAnime() }
+        }
+    }
+
+    override suspend fun moveToTrash(id: Int) {
+        return dao.moveToTrash(id)
+    }
+
+    override suspend fun restoreFromTrash(id: Int) {
+        return dao.restoreFromTrash(id)
+    }
+
     override suspend fun getAnimeById(id: Int): Anime? {
         return dao.getAnimeById(id)?.toAnime()
     }
