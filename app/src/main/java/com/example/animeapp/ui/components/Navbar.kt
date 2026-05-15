@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -29,13 +30,21 @@ fun Navbar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        Color.Black.copy(alpha = 0.15f)
+                    )
+                )
+            )
+            .padding(top = 40.dp, bottom = 24.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
         Surface(
             shape = RoundedCornerShape(8.dp),
-            shadowElevation = 8.dp,
-            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 0.dp,
+            color = Color.Transparent,
             modifier = Modifier.height(64.dp)
         ) {
             Row(

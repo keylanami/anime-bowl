@@ -1,6 +1,7 @@
 package com.example.animeapp.ui.navigation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -26,7 +27,6 @@ import com.example.animeapp.ui.screen.ProfileScreen
 import com.example.animeapp.ui.screen.TrashScreen
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(viewModel: AnimeViewModel) {
@@ -37,25 +37,9 @@ fun AppNavigation(viewModel: AnimeViewModel) {
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    Scaffold(
-        bottomBar = {
+    Scaffold { paddingValues ->
+        Box(Modifier.fillMaxSize().padding(paddingValues)) {
 
-            if (currentRoute != Screen.Form.route) {
-                Navbar(
-                    currentRoute = currentRoute ?: Screen.Home.route,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            popUpTo(Screen.Home.route) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    onAddClick = { showBottomSheet = true }
-                )
-            }
-        }
-    ) { paddingValues ->
-        Box(Modifier.padding(paddingValues)) {
             NavHost(navController, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) {
                     HomeScreen(viewModel, onLogAnime = { anime ->
@@ -74,7 +58,7 @@ fun AppNavigation(viewModel: AnimeViewModel) {
                     TrashScreen(
                         viewModel = viewModel,
                         onNavigateUp = {navController.navigateUp()}
-                        )
+                    )
                 }
                 composable(
                     route = Screen.Form.route,
@@ -83,6 +67,20 @@ fun AppNavigation(viewModel: AnimeViewModel) {
                     val id = backStackEntry.arguments?.getInt("animeId") ?: 0
                     FormScreen(viewModel, animeId = id, onNavigateUp = { navController.navigateUp() })
                 }
+            }
+
+            if (currentRoute != Screen.Form.route) {
+                Navbar(
+                    currentRoute = currentRoute ?: Screen.Home.route,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            popUpTo(Screen.Home.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onAddClick = { showBottomSheet = true }
+                )
             }
         }
 
