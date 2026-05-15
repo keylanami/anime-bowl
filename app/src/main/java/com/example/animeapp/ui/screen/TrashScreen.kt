@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -17,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.animeapp.data.model.Anime
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,6 +26,27 @@ fun TrashScreen(
     onNavigateUp: () -> Unit
 ) {
     val trashedItems by viewModel.trashedList.collectAsState()
+
+    // State untuk Dialog Konfirmasi
+    var showDialog by remember { mutableStateOf(false) }
+    var animeToDelete by remember { mutableStateOf<Anime?>(null) }
+
+    if (showDialog && animeToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Hapus Permanen?") },
+            text = { Text("Data '${animeToDelete?.title}' akan dihapus selamanya dari database. Kamu yakin?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    animeToDelete?.let { viewModel.deleteAnime(it) }
+                    showDialog = false
+                }) { Text("Hapus") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) { Text("Batal") }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -54,7 +75,7 @@ fun TrashScreen(
                         modifier = Modifier.padding(8.dp)
                     ) {
                         AsyncImage(
-                            model = anime.image_url,
+                            model = anime.image_url.ifEmpty { "https://via.placeholder.com/150" },
                             contentDescription = null,
                             modifier = Modifier
                                 .size(60.dp)
@@ -77,7 +98,11 @@ fun TrashScreen(
                         IconButton(onClick = { viewModel.restoreFromTrash(anime.id) }) {
                             Icon(Icons.Filled.Refresh, contentDescription = "Restore")
                         }
-                        IconButton(onClick = { viewModel.deleteAnime(anime) }) {
+
+                        IconButton(onClick = {
+                            animeToDelete = anime
+                            showDialog = true
+                        }) {
                             Icon(
                                 Icons.Filled.Delete,
                                 contentDescription = "Delete Permanent",
