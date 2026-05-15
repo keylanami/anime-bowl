@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
             applicationContext,
             AnimeDatabase::class.java,
             "anime_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
 
         val dao = database.favAnimeDao()
 
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(viewModel = viewModel, onNavigateUp = { finish() })
+                    AppNavigation(viewModel = viewModel)
                 }
 
             }

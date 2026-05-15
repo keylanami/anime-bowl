@@ -3,6 +3,7 @@ package com.example.animeapp.ui.screen
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,7 +55,7 @@ fun FormScreen(
             TopAppBar(
                 title = { Text(if (isEditMode) "Edit Diary" else "Log Anime Baru") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateUp) { Icon(Icons.Filled.ArrowBack, contentDescription = "Kembali") }
+                    IconButton(onClick = onNavigateUp) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali") }
                 }
             )
         }
