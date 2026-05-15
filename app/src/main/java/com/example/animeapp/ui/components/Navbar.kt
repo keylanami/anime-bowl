@@ -1,6 +1,5 @@
 package com.example.animeapp.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -9,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -27,74 +27,62 @@ fun Navbar(
     onNavigate: (String) -> Unit,
     onAddClick: () -> Unit
 ) {
-    Box(
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        shadowElevation = 8.dp,
+        color = Color.White, // Mempertahankan warna putih
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Transparent,
-                        Color.Black.copy(alpha = 0.15f)
-                    )
-                )
-            )
-            .padding(top = 40.dp, bottom = 24.dp),
-        contentAlignment = Alignment.BottomCenter
+            .padding(horizontal = 24.dp, vertical = 24.dp) // Jarak dari tepi layar
+            .height(64.dp)
     ) {
-        Surface(
-            shape = RoundedCornerShape(8.dp),
-            shadowElevation = 0.dp,
-            color = Color.Transparent,
-            modifier = Modifier.height(64.dp)
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly // Terbagi rata
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                NavItem(
-                    icon = Icons.Filled.Home,
-                    isSelected = currentRoute == "home",
-                    onClick = { onNavigate("home") }
-                )
+            NavItem(
+                activeIcon = Icons.Filled.Home,
+                inactiveIcon = Icons.Outlined.Home,
+                isSelected = currentRoute == "home",
+                onClick = { onNavigate("home") }
+            )
 
-                NavItem(
-                    icon = Icons.Filled.Search,
-                    isSelected = false,
-                    onClick = onAddClick
-                )
+            NavItem(
+                activeIcon = Icons.Filled.Search,
+                inactiveIcon = Icons.Filled.Search, // Search tetap sama
+                isSelected = false,
+                onClick = onAddClick
+            )
 
-                NavItem(
-                    icon = Icons.Filled.Person,
-                    isSelected = currentRoute == "profile",
-                    onClick = { onNavigate("profile") }
-                )
-            }
+            NavItem(
+                activeIcon = Icons.Filled.Person,
+                inactiveIcon = Icons.Outlined.Person,
+                isSelected = currentRoute == "profile",
+                onClick = { onNavigate("profile") }
+            )
         }
     }
 }
 
 @Composable
 private fun NavItem(
-    icon: ImageVector,
+    activeIcon: ImageVector,
+    inactiveIcon: ImageVector,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor =
-        if (isSelected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
-    val iconColor =
-        if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    val iconColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
 
     Box(
         modifier = Modifier
             .size(48.dp)
             .clip(CircleShape)
-            .background(bgColor)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = icon,
+            imageVector = if (isSelected) activeIcon else inactiveIcon,
             contentDescription = null,
             tint = iconColor,
             modifier = Modifier.size(28.dp)
