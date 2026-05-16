@@ -21,10 +21,10 @@ interface FavAnimeDao {
     @Delete
     suspend fun deleteAnime(anime: FavAnimeEntity)
 
-    @Query("select * from fav_anime where is_in_trash = 0 order by title asc")
+    @Query("select * from fav_anime where is_in_trash = 0 order by id desc")
     fun getFavAnimeSorted(): Flow<List<FavAnimeEntity>>
 
-    @Query("select * from fav_anime where is_in_trash = 1 order by title asc")
+    @Query("select * from fav_anime where is_in_trash = 1 order by id desc")
     fun getTrashedAnime(): Flow<List<FavAnimeEntity>>
 
     @Query("select * from fav_anime where id = :id")
