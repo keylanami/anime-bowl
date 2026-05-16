@@ -1,11 +1,14 @@
 package com.example.animeapp.ui.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -25,9 +28,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.animeapp.R
 import com.example.animeapp.data.local.pref.UserPreferences
@@ -56,12 +62,12 @@ fun ProfileScreen(
                     IconButton(onClick = { scope.launch { userPreferences.toggleGridMode() } }) {
                         Icon(
 
-                        painter = if (isGridMode) {
-                            painterResource(R.drawable.outline_grid_view_24)
-                        } else {
-                            painterResource(R.drawable.outline_grid_view_24)
-                        },
-                        contentDescription = "Toggle Layout"
+                            painter = if (isGridMode) {
+                                painterResource(R.drawable.outline_grid_view_24)
+                            } else {
+                                painterResource(R.drawable.outline_grid_view_24)
+                            },
+                            contentDescription = "Toggle Layout"
                         )
                     }
                     IconButton(onClick = onNavigateToTrash) {
@@ -75,44 +81,64 @@ fun ProfileScreen(
             )
         }
     ) { paddingValues ->
-        if (logs.isEmpty()) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = androidx.compose.ui.Alignment.Center
-            ) {
-                Text("No reviews yet. Start logging!")
-            }
-        } else {
-            if (isGridMode) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(bottom = 100.dp, start = 8.dp, end = 8.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (logs.isEmpty()) {
+                // EMPTY STATE PROFILE: Ikon + Teks ala Jetbrains
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(logs) { anime ->
-                        LogAnimeItem(
-                            anime,
-                            onEdit = { onNavigateToEdit(anime.id) },
-                            onDelete = { viewModel.moveToTrash(anime) })
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_folder_open_24),
+                        contentDescription = null,
+                        modifier = Modifier.size(72.dp),
+                        tint = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Belum ada log review anime.",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "Ketuk ikon cari di bawah untuk menambah.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(bottom = 100.dp, start = 16.dp, end = 16.dp)
-                ) {
-                    items(logs) { anime ->
-                        LogAnimeItem(
-                            anime,
-                            onEdit = { onNavigateToEdit(anime.id) },
-                            onDelete = { viewModel.moveToTrash(anime) })
-                        Spacer(Modifier.height(8.dp))
+                if (isGridMode) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 100.dp, start = 8.dp, end = 8.dp)
+                    ) {
+                        items(logs) { anime ->
+                            LogAnimeItem(
+                                anime = anime,
+                                onEdit = { onNavigateToEdit(anime.id) },
+                                onDelete = { viewModel.moveToTrash(anime) }
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 100.dp, start = 16.dp, end = 16.dp)
+                    ) {
+                        items(logs) { anime ->
+                            LogAnimeItem(
+                                anime = anime,
+                                onEdit = { onNavigateToEdit(anime.id) },
+                                onDelete = { viewModel.moveToTrash(anime) }
+                            )
+                            Spacer(Modifier.height(8.dp))
+                        }
                     }
                 }
             }

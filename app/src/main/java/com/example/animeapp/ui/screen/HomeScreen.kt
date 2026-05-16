@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.animeapp.data.model.Anime
@@ -31,14 +33,39 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 100.dp)
     ) {
-        if (reviewedList.isNotEmpty()) {
+        item {
+            Text(
+                "Your Recent Reviews",
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        if (reviewedList.isEmpty()) {
             item {
-                Text(
-                    "Your Recent Reviews",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                            alpha = 0.5f
+                        )
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = "Kamu belum memberikan review akhir-akhir ini.",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+                HorizontalDivider(Modifier.padding(vertical = 16.dp, horizontal = 16.dp))
+            }
+        } else {
+            item {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -53,7 +80,7 @@ fun HomeScreen(
                         }
                     }
                 }
-                HorizontalDivider(Modifier.padding(vertical = 16.dp, horizontal = 16.dp))
+                Divider(Modifier.padding(vertical = 16.dp, horizontal = 16.dp))
             }
         }
 
@@ -86,7 +113,9 @@ fun HomeScreen(
                 }
             }
 
-            is AnimeUiState.Error -> item { Text("Error loading data") }
+            is AnimeUiState.Error -> item {
+                Text("Error loading data")
+            }
         }
     }
 }
