@@ -8,15 +8,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.animeapp.R // Pastikan import ini sesuai dengan nama package project-mu
 
-// 1. Deklarasi FontFamily untuk Jetbrains
 val JetbrainsFamily = FontFamily(
     Font(R.font.jetbrains_regular, FontWeight.Normal),
     Font(R.font.jetbrains_semibold, FontWeight.SemiBold)
 )
 
-// 2. Terapkan ke Typography Material 3
 val Typography = Typography(
-    // Style untuk teks paragraf / deskripsi biasa
     bodyLarge = TextStyle(
         fontFamily = JetbrainsFamily,
         fontWeight = FontWeight.Normal,
@@ -39,7 +36,6 @@ val Typography = Typography(
         letterSpacing = 0.4.sp
     ),
 
-    // Style untuk Judul (Appbar, Judul Item, dll) -> Pakai SemiBold
     titleLarge = TextStyle(
         fontFamily = JetbrainsFamily,
         fontWeight = FontWeight.SemiBold,
