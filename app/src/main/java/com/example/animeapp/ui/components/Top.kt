@@ -17,13 +17,12 @@ fun AnimeTopBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 17.dp)
     ) {
         Text(
-            text = "AnimeBowl",
-            style = MaterialTheme.typography.headlineSmall,
+            text = "Anime Bowl",
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.titleLarge
         )
     }
 }
