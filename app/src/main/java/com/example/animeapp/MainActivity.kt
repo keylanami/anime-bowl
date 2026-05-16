@@ -12,6 +12,7 @@ import com.example.animeapp.data.local.db.AnimeDatabase
 import com.example.animeapp.data.remote.RetrofitClient
 import com.example.animeapp.data.repository.AnimeRepositoryImpl
 import com.example.animeapp.ui.navigation.AppNavigation
+import com.example.animeapp.ui.theme.Typography
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
         val viewModel = AnimeViewModel(repository)
 
         setContent {
-            MaterialTheme {
+            MaterialTheme(typography = Typography) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
