@@ -29,17 +29,17 @@ fun Navbar(
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
-        shadowElevation = 8.dp,
-        color = Color.White, // Mempertahankan warna putih
+        shadowElevation = 12.dp,
+        color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 24.dp) // Jarak dari tepi layar
+            .padding(horizontal = 24.dp, vertical = 32.dp)
             .height(64.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly // Terbagi rata
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             NavItem(
                 activeIcon = Icons.Filled.Home,
@@ -50,7 +50,7 @@ fun Navbar(
 
             NavItem(
                 activeIcon = Icons.Filled.Search,
-                inactiveIcon = Icons.Filled.Search, // Search tetap sama
+                inactiveIcon = Icons.Filled.Search,
                 isSelected = false,
                 onClick = onAddClick
             )
