@@ -35,7 +35,7 @@ To run this project locally on your machine:
 2. **Open in Android Studio**:
   Open Android Studio, select File > Open, and choose the cloned directory.
 
-3.** Sync the project**:
+3. **Sync the project**:
   Allow Gradle to sync and download all necessary dependencies.
 
 4. **Run the app**:
