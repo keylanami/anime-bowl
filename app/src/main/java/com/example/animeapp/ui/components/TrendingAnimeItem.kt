@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
@@ -24,9 +23,15 @@ fun TrendingAnimeItem(
     isReviewed: Boolean = false,
     onLogClick: () -> Unit
 ) {
+    val lightPlaceholder = Color(0xFFF5F5F5)
+
     Card(
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.fillMaxWidth().padding(4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
     ) {
         Column {
             Box {
@@ -34,14 +39,19 @@ fun TrendingAnimeItem(
                     model = anime.image_url,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    placeholder = ColorPainter(Color.LightGray),
-                    error = ColorPainter(Color.LightGray),
-                    modifier = Modifier.fillMaxWidth().height(180.dp)
+                    placeholder = ColorPainter(lightPlaceholder),
+                    error = ColorPainter(lightPlaceholder),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp)
                 )
                 SmallFloatingActionButton(
                     onClick = onLogClick,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
                     Icon(
                         imageVector = if (isReviewed) Icons.Filled.Edit else Icons.Filled.Add,
@@ -50,9 +60,19 @@ fun TrendingAnimeItem(
                     )
                 }
             }
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = anime.title, maxLines = 1, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-                Text(text = "⭐ ${anime.score}", style = MaterialTheme.typography.labelSmall)
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = anime.title,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "⭐ ${anime.score}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.Gray // Kontras rating
+                )
             }
         }
     }

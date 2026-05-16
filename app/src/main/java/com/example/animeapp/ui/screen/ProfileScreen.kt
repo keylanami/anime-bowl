@@ -57,15 +57,14 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Anime Bowl") },
+                title = { Text("Anime Bowl", fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = { scope.launch { userPreferences.toggleGridMode() } }) {
                         Icon(
-
                             painter = if (isGridMode) {
                                 painterResource(R.drawable.outline_grid_view_24)
                             } else {
-                                painterResource(R.drawable.outline_grid_view_24)
+                                painterResource(R.drawable.outline_lists_24)
                             },
                             contentDescription = "Toggle Layout"
                         )
@@ -87,7 +86,6 @@ fun ProfileScreen(
                 .padding(paddingValues)
         ) {
             if (logs.isEmpty()) {
-                // EMPTY STATE PROFILE: Ikon + Teks ala Jetbrains
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -103,8 +101,9 @@ fun ProfileScreen(
                     Text(
                         text = "Belum ada log review anime.",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Ketuk ikon cari di bawah untuk menambah.",
                         style = MaterialTheme.typography.bodyMedium,
@@ -116,7 +115,12 @@ fun ProfileScreen(
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 100.dp, start = 8.dp, end = 8.dp)
+                        contentPadding = PaddingValues(
+                            bottom = 100.dp,
+                            start = 8.dp,
+                            end = 8.dp,
+                            top = 8.dp
+                        )
                     ) {
                         items(logs) { anime ->
                             LogAnimeItem(
@@ -129,7 +133,12 @@ fun ProfileScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 100.dp, start = 16.dp, end = 16.dp)
+                        contentPadding = PaddingValues(
+                            bottom = 100.dp,
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 8.dp
+                        )
                     ) {
                         items(logs) { anime ->
                             LogAnimeItem(
@@ -137,7 +146,7 @@ fun ProfileScreen(
                                 onEdit = { onNavigateToEdit(anime.id) },
                                 onDelete = { viewModel.moveToTrash(anime) }
                             )
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(12.dp))
                         }
                     }
                 }
