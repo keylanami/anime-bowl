@@ -45,9 +45,8 @@ To run this project locally on your machine:
 
 ## 📸 Screenshots
 
+## 📸 Screenshots
+
 | Home Screen | Profile (Diary) | Search & Log |
 | :---: | :---: | :---: |
-| <img src="<img width="898" height="1996" alt="Screenshot_20260516_202506" src="https://github.com/user-attachments/assets/30173b37-8d6d-44ab-b0de-23692ad7d078" />
-" width="250"/> | <img src="<img width="961" height="2136" alt="Screenshot_20260516_202717" src="https://github.com/user-attachments/assets/7cf83fae-62c9-4b7c-89e8-188406440ecc" />
-" width="250"/> | <img src="<img width="1080" height="2400" alt="Screenshot_20260516_202607" src="https://github.com/user-attachments/assets/fd187d5e-52bd-4429-bbc0-946208e702d3" />
-" width="250"/> |
+| <img src="https://github.com/user-attachments/assets/30173b37-8d6d-44ab-b0de-23692ad7d078" width="250" alt="Home Screen"/> | <img src="https://github.com/user-attachments/assets/7cf83fae-62c9-4b7c-89e8-188406440ecc" width="250" alt="Profile Diary"/> | <img src="https://github.com/user-attachments/assets/fd187d5e-52bd-4429-bbc0-946208e702d3" width="250" alt="Search and Log"/> |
