@@ -45,4 +45,4 @@ To run this project locally on your machine:
 
 | Home Screen | Profile (Diary) | Search & Log |
 | :---: | :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/30173b37-8d6d-44ab-b0de-23692ad7d078" width="250" alt="Home Screen"/> | <img src="https://github.com/user-attachments/assets/7cf83fae-62c9-4b7c-89e8-188406440ecc" width="250" alt="Profile Diary"/> | <img src="https://github.com/user-attachments/assets/fd187d5e-52bd-4429-bbc0-946208e702d3" width="250" alt="Search and Log"/> |
+| <img src="https://github.com/user-attachments/assets/30173b37-8d6d-44ab-b0de-23692ad7d078" width="250" alt="Home Screen"/> | <img src="https://github.com/user-attachments/assets/055ead2e-969e-42e3-9c00-b2c160f20948" width="250" alt="Profile Diary"/> | <img src="https://github.com/user-attachments/assets/fd187d5e-52bd-4429-bbc0-946208e702d3" width="250" alt="Search and Log"/> |
