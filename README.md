@@ -30,7 +30,7 @@ To run this project locally on your machine:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/yourusername/AnimeBowl.git](https://github.com/yourusername/anime-bowl.git)
+   git clone https://github.com/yourusername/anime-bowl.git
    ```
 2. **Open in Android Studio**:
   Open Android Studio, select File > Open, and choose the cloned directory.
