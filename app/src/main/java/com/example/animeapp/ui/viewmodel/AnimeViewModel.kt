@@ -7,6 +7,7 @@ import com.example.animeapp.data.repository.AnimeRepository
 import com.example.animeapp.ui.state.AnimeUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class AnimeViewModel(
     private val repository: AnimeRepository
@@ -28,7 +29,11 @@ class AnimeViewModel(
             try {
                 val animeList = repository.getTopAnime()
                 _uiState.value = AnimeUiState.Success(animeList)
-            } catch (e: Exception) {
+            } catch (e: IOException){
+                _uiState.value = AnimeUiState.Error("Tidak ada koneksi internet. Perika jaringan Anda.")
+            }
+
+            catch (e: Exception) {
                 _uiState.value = AnimeUiState.Error(e.message ?: "Gagal memuat data")
             }
         }
@@ -41,7 +46,11 @@ class AnimeViewModel(
             try {
                 val animeList = repository.searchAnime(query)
                 _uiState.value = AnimeUiState.Success(animeList)
-            } catch (e: Exception) {
+            } catch (e: IOException){
+                _uiState.value = AnimeUiState.Error("Tidak ada koneksi internet. Perika jaringan Anda.")
+            }
+
+            catch (e: Exception) {
                 _uiState.value = AnimeUiState.Error(e.message ?: "Pencarian gagal")
             }
         }
