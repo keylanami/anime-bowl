@@ -1,19 +1,26 @@
 package com.example.animeapp.ui.screen
 
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -30,7 +37,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -39,7 +48,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
+import com.example.animeapp.data.remote.FirestoreHelper
+import com.example.animeapp.data.remote.encodeImageUriToBase64
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +64,8 @@ fun FormScreen(
     animeId: Int,
     onNavigateUp: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val currentUser = FirebaseAuth.getInstance().currentUser
     val context = LocalContext.current
     val selectedAnime by viewModel.selectedAnime.collectAsState()
 
@@ -55,7 +73,16 @@ fun FormScreen(
     var userNote by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Plan to Watch") }
 
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var isUploading by remember { mutableStateOf(false) }
+
     val statusOptions = listOf("Plan to Watch", "Watching", "Completed")
+
+    val cropperLauncher = rememberLauncherForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            imageUri = result.uriContent
+        }
+    }
 
     LaunchedEffect(animeId) {
         if (animeId > 0) viewModel.getAnimeById(animeId)
@@ -72,17 +99,10 @@ fun FormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Review Log"
-                    )
-                },
+                title = { Text("Review Log") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -96,15 +116,37 @@ fun FormScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            AsyncImage(
-                model = selectedAnime?.image_url,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(240.dp)
                     .clip(RoundedCornerShape(12.dp))
-            )
+                    .clickable {
+                        cropperLauncher.launch(
+                            CropImageContractOptions(null, CropImageOptions(
+                                imageSourceIncludeGallery = true,
+                                imageSourceIncludeCamera = true,
+                                fixAspectRatio = true
+                            ))
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = imageUri ?: selectedAnime?.image_url,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Text(
+                    text = "Tap to change image",
+                    color = Color.White,
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .padding(8.dp)
+                )
+            }
 
             Text(
                 text = selectedAnime?.title ?: "Loading...",
@@ -148,38 +190,56 @@ fun FormScreen(
                 onClick = {
                     val parsedScore = score.toDoubleOrNull()
                     if (parsedScore == null || parsedScore !in 0.0..10.0) {
-                        Toast.makeText(
-                            context,
-                            "Please enter valid rating (0-10)",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(context, "Please enter valid rating (0-10)", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
                     if (status !in statusOptions) {
-                        Toast.makeText(context, "Invalid status selected", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(context, "Invalid status selected", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
-                    val animeToSave = selectedAnime?.copy(
-                        id = if (animeId > 0) animeId else 0,
-                        score = parsedScore,
-                        status = status,
-                        userNote = userNote
-                    )
+                    isUploading = true
 
-                    animeToSave?.let {
-                        if (animeId > 0) viewModel.updateAnime(it)
-                        else viewModel.insertAnime(it)
-                        Toast.makeText(context, "Log updated!", Toast.LENGTH_SHORT).show()
-                        onNavigateUp()
+                    scope.launch {
+                        var finalImageUrl = selectedAnime?.image_url ?: ""
+
+                        if (imageUri != null) {
+                            val base64Image = encodeImageUriToBase64(context, imageUri!!)
+                            if (base64Image != null) {
+                                finalImageUrl = base64Image
+                            }
+                        }
+
+                        val animeToSave = selectedAnime?.copy(
+                            id = if (animeId > 0) animeId else 0,
+                            score = parsedScore,
+                            status = status,
+                            userNote = userNote,
+                            image_url = finalImageUrl
+                        )
+
+                        animeToSave?.let {
+                            if (animeId > 0) viewModel.updateAnime(it)
+                            else viewModel.insertAnime(it)
+
+                            if (currentUser != null) {
+                                FirestoreHelper.saveReviewToServer(currentUser.uid, it)
+                            }
+
+                            Toast.makeText(context, "Log updated!", Toast.LENGTH_SHORT).show()
+                            onNavigateUp()
+                        }
+                        isUploading = false
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
+                enabled = !isUploading,
+                modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
-                Text("Save Log")
+                if (isUploading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Save Log")
+                }
             }
         }
     }

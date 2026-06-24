@@ -68,6 +68,10 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
+
+    implementation(libs.android.image.cropper)
+    implementation(libs.compose.material.icons.extended)
+
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
     implementation(libs.moshi.kotlin)

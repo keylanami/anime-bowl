@@ -34,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +45,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.animeapp.data.model.Anime
+import com.example.animeapp.data.remote.FirestoreHelper
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +59,9 @@ fun TrashScreen(
     val trashedItems by viewModel.trashedList.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
     var animeToDelete by remember { mutableStateOf<Anime?>(null) }
+
+    val scope = rememberCoroutineScope()
+    val currentUser = FirebaseAuth.getInstance().currentUser
 
     if (showDialog && animeToDelete != null) {
         AlertDialog(
@@ -72,7 +79,15 @@ fun TrashScreen(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    animeToDelete?.let { viewModel.deleteAnime(it) }
+                    animeToDelete?.let { anime ->
+                        viewModel.deleteAnime(anime)
+
+                        if (currentUser != null) {
+                            scope.launch {
+                                FirestoreHelper.deleteReviewFromServer(currentUser.uid, anime.mal_id)
+                            }
+                        }
+                    }
                     showDialog = false
                 }) { Text("Hapus", color = MaterialTheme.colorScheme.error) }
             },
