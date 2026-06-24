@@ -12,7 +12,20 @@
           "package_name": "com.example.animeapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1003914435185-45m3ophlelqtfsp9veoijk18ichb5vou.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.animeapp",
+            "certificate_hash": "7968d5254bc8146f7be99f501808fc391a5dd76b"
+          }
+        },
+        {
+          "client_id": "1003914435185-e2mcha12jlm1dvq9tsadh2k2iqv84bl6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDyFAfcj82LgLF9RqEpXzI0j_1WUY3A-sE"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1003914435185-e2mcha12jlm1dvq9tsadh2k2iqv84bl6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
