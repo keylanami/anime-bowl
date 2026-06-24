@@ -53,6 +53,15 @@ fun ProfileScreen(
 
     val myLogs = logs.filter { it.userId == currentUser?.uid }
 
+
+    DisposableEffect(Unit) {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            currentUser = auth.currentUser
+        }
+        FirebaseAuth.getInstance().addAuthStateListener(listener)
+        onDispose { FirebaseAuth.getInstance().removeAuthStateListener(listener) }
+    }
+
     val filteredLogs = remember(myLogs, selectedFilter) {
         if (selectedFilter == "All") myLogs
         else myLogs.filter { it.status == selectedFilter }

@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.animeapp.data.model.Anime
 import com.example.animeapp.data.remote.FirestoreHelper
+import com.example.animeapp.data.remote.getImageModel
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -162,7 +163,7 @@ fun TrashScreen(
                                 modifier = Modifier.padding(8.dp)
                             ) {
                                 AsyncImage(
-                                    model = anime.image_url,
+                                    model = getImageModel( anime.image_url),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(60.dp)

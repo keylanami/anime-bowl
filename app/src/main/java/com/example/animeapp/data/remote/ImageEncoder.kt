@@ -12,8 +12,8 @@ fun encodeImageUriToBase64(context: Context, uri: Uri): String? {
         val inputStream = context.contentResolver.openInputStream(uri)
         val originalBitmap = BitmapFactory.decodeStream(inputStream)
 
-        val maxWidth = 800
-        val maxHeight = 800
+        val maxWidth = 400
+        val maxHeight = 400
         var width = originalBitmap.width
         var height = originalBitmap.height
 
@@ -32,11 +32,26 @@ fun encodeImageUriToBase64(context: Context, uri: Uri): String? {
         val scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, width, height, true)
 
         val outputStream = ByteArrayOutputStream()
-        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream)
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 30, outputStream)
         val byteArray = outputStream.toByteArray()
 
-        "data:image/jpeg;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT)
+        Base64.encodeToString(byteArray, Base64.NO_WRAP)
     } catch (e: Exception) {
         null
+    }
+}
+
+
+fun getImageModel(imageUrl: String?): Any? {
+    if (imageUrl == null) return null
+
+    return if (imageUrl.length > 1000) {
+        try {
+           Base64.decode(imageUrl, Base64.DEFAULT)
+        } catch (e: Exception) {
+            imageUrl
+        }
+    } else {
+        imageUrl
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.animeapp.data.model.Anime
+import com.example.animeapp.data.remote.getImageModel
 
 @Composable
 fun TrendingAnimeItem(
@@ -36,7 +37,7 @@ fun TrendingAnimeItem(
         Column {
             Box {
                 AsyncImage(
-                    model = anime.image_url,
+                    model = getImageModel( anime.image_url),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     placeholder = ColorPainter(lightPlaceholder),

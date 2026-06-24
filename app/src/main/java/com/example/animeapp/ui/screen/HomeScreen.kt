@@ -40,6 +40,15 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
 
+
+    DisposableEffect(Unit) {
+        val listener = FirebaseAuth.AuthStateListener { auth ->
+            currentUser = auth.currentUser
+        }
+        FirebaseAuth.getInstance().addAuthStateListener(listener)
+        onDispose { FirebaseAuth.getInstance().removeAuthStateListener(listener) }
+    }
+
     val allReviews by viewModel.favoriteList.collectAsState()
     val myReviews = allReviews.filter { it.userId == currentUser?.uid }
 
