@@ -12,6 +12,6 @@ data class Anime(
 
     val status: String = "Plan to watch",
     val userNote: String = "",
-
+    val userId: String = "",
     val is_in_trash: Boolean = false
 )

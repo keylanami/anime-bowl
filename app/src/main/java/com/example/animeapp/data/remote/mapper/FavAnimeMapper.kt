@@ -15,6 +15,7 @@ fun Anime.toFavAnimeEntity(): FavAnimeEntity {
         image_url = image_url,
         status = status,
         user_note = userNote,
+        userId = userId,
         is_in_trash = is_in_trash
     )
 }
@@ -31,6 +32,7 @@ fun FavAnimeEntity.toAnime(): Anime {
         image_url = image_url,
         status = status,
         userNote = user_note,
+        userId = userId,
         is_in_trash = is_in_trash
     )
 }

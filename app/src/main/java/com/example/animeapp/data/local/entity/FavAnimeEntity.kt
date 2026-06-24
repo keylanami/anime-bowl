@@ -16,5 +16,6 @@ data class FavAnimeEntity(
 
     val status: String,
     val user_note: String,
+    val userId: String = "",
     val is_in_trash: Boolean = false
 )

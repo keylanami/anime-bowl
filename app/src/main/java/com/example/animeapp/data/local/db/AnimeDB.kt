@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [FavAnimeEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 

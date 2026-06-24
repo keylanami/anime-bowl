@@ -215,6 +215,7 @@ fun FormScreen(
                             score = parsedScore,
                             status = status,
                             userNote = userNote,
+                            userId = currentUser?.uid ?: "",
                             image_url = finalImageUrl
                         )
 
