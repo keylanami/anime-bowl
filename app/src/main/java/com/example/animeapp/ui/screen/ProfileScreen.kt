@@ -51,10 +51,11 @@ fun ProfileScreen(
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
     var showProfileDialog by remember { mutableStateOf(false) }
 
+    val myLogs = logs.filter { it.userId == currentUser?.uid }
 
-    val filteredLogs = remember(logs, selectedFilter) {
-        if (selectedFilter == "All") logs
-        else logs.filter { it.status == selectedFilter }
+    val filteredLogs = remember(myLogs, selectedFilter) {
+        if (selectedFilter == "All") myLogs
+        else myLogs.filter { it.status == selectedFilter }
     }
 
     if (showProfileDialog && currentUser != null) {
@@ -84,7 +85,11 @@ fun ProfileScreen(
                         )
                     }
                     IconButton(onClick = onNavigateToTrash) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Recycle Bin", tint = MaterialTheme.colorScheme.error)
+                        Icon(
+                            Icons.Filled.Delete,
+                            contentDescription = "Recycle Bin",
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
 
                     IconButton(onClick = {
@@ -104,11 +109,17 @@ fun ProfileScreen(
                             AsyncImage(
                                 model = currentUser?.photoUrl,
                                 contentDescription = "Profile",
-                                modifier = Modifier.size(28.dp).clip(CircleShape),
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape),
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            Icon(Icons.Filled.AccountCircle, contentDescription = "Login", modifier = Modifier.size(28.dp))
+                            Icon(
+                                Icons.Filled.AccountCircle,
+                                contentDescription = "Login",
+                                modifier = Modifier.size(28.dp)
+                            )
                         }
                     }
                 }
@@ -120,96 +131,123 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (logs.isNotEmpty()) {
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filterOptions) { filter ->
-                        FilterChip(
-                            selected = selectedFilter == filter,
-                            onClick = { selectedFilter = filter },
-                            label = { Text(filter) }
-                        )
-                    }
-                }
-            }
-
-            if (logs.isEmpty()) {
+            if (currentUser == null) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.baseline_folder_open_24),
+                        Icons.Filled.AccountCircle,
                         contentDescription = null,
                         modifier = Modifier.size(72.dp),
                         tint = Color.LightGray
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Belum ada log review anime.",
+                        "Anda Belum Login",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Ketuk ikon cari di bawah untuk menambah.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                }
-            } else if (filteredLogs.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Tidak ada anime di kategori ini.",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        "Klik ikon di pojok kanan atas untuk login.",
                         color = Color.Gray
                     )
                 }
             } else {
-                if (isGridMode) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            bottom = 100.dp,
-                            start = 8.dp,
-                            end = 8.dp,
-                            top = 8.dp
-                        )
+                // --- JIKA SUDAH LOGIN, TAMPILKAN UI LAMA ---
+                if (myLogs.isNotEmpty()) {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(filteredLogs) { anime ->
-                            LogAnimeItem(
-                                anime = anime,
-                                onEdit = { onNavigateToEdit(anime.id) },
-                                onDelete = { viewModel.moveToTrash(anime) }
+                        items(filterOptions) { filter ->
+                            FilterChip(
+                                selected = selectedFilter == filter,
+                                onClick = { selectedFilter = filter },
+                                label = { Text(filter) }
                             )
                         }
                     }
-                } else {
-                    LazyColumn(
+                }
+
+                if (myLogs.isEmpty()) {
+                    Column(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            bottom = 100.dp,
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 8.dp
-                        )
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        items(filteredLogs) { anime ->
-                            LogAnimeItem(
-                                anime = anime,
-                                onEdit = { onNavigateToEdit(anime.id) },
-                                onDelete = { viewModel.moveToTrash(anime) }
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_folder_open_24),
+                            contentDescription = null,
+                            modifier = Modifier.size(72.dp),
+                            tint = Color.LightGray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Belum ada log review anime.",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Ketuk ikon cari di bawah untuk menambah.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                    }
+                } else if (filteredLogs.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Tidak ada anime di kategori ini.",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    if (isGridMode) {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                bottom = 100.dp,
+                                start = 8.dp,
+                                end = 8.dp,
+                                top = 8.dp
                             )
-                            Spacer(Modifier.height(12.dp))
+                        ) {
+                            items(filteredLogs) { anime ->
+                                LogAnimeItem(
+                                    anime = anime,
+                                    onEdit = { onNavigateToEdit(anime.id) },
+                                    onDelete = { viewModel.moveToTrash(anime) }
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                bottom = 100.dp,
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 8.dp
+                            )
+                        ) {
+                            items(filteredLogs) { anime ->
+                                LogAnimeItem(
+                                    anime = anime,
+                                    onEdit = { onNavigateToEdit(anime.id) },
+                                    onDelete = { viewModel.moveToTrash(anime) }
+                                )
+                                Spacer(Modifier.height(12.dp))
+                            }
                         }
                     }
                 }
