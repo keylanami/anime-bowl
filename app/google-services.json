@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1003914435185",
+    "project_id": "anime-bowl",
+    "storage_bucket": "anime-bowl.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1003914435185:android:ba7d661a906169188159d0",
+        "android_client_info": {
+          "package_name": "com.example.animeapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyFAfcj82LgLF9RqEpXzI0j_1WUY3A-sE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

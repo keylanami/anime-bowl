@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.animeapp" />
+                  <option name="mobileSdkAppId" value="1:1003914435185:android:ba7d661a906169188159d0" />
+                  <option name="projectId" value="anime-bowl" />
+                  <option name="projectNumber" value="1003914435185" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
