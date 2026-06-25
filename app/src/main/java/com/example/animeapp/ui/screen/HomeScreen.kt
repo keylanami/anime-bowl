@@ -77,7 +77,7 @@ fun HomeScreen(
                     )
                 }
 
-                if (reviewedList.isEmpty()) {
+                if (myReviews.isEmpty()) {
                     item {
                         Card(
                             shape = RoundedCornerShape(12.dp),
@@ -108,7 +108,7 @@ fun HomeScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(reviewedList) { anime ->
+                            items(myReviews) { anime ->
                                 Box(modifier = Modifier.width(120.dp)) {
                                     TrendingAnimeItem(
                                         anime = anime,
