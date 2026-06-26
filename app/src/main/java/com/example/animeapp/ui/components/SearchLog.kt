@@ -58,7 +58,7 @@ fun SearchLogBottomSheet(
 ) {
     var query by remember { mutableStateOf("") }
     val recentSearches = remember { mutableStateListOf<String>() }
-    val uiState by viewModel.uiState.collectAsState()
+    val searchUiState by viewModel.searchUiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
     Column(
@@ -75,14 +75,14 @@ fun SearchLogBottomSheet(
 
         OutlinedTextField(
             value = query,
-            onValueChange = {
-                query = it
-                if (it.length > 2) {
-                    viewModel.searchAnime(it)
-                    if (recentSearches.none { recent -> recent.equals(it, ignoreCase = true) }) {
-                        recentSearches.add(0, it)
-                        if (recentSearches.size > 4) recentSearches.removeLast()
-                    }
+            onValueChange = { nextQuery ->
+                query = nextQuery
+                viewModel.searchAnime(nextQuery)
+                if (nextQuery.length > 2 &&
+                    recentSearches.none { recent -> recent.equals(nextQuery, ignoreCase = true) }
+                ) {
+                    recentSearches.add(0, nextQuery)
+                    if (recentSearches.size > 4) recentSearches.removeLast()
                 }
             },
             leadingIcon = {
@@ -90,7 +90,12 @@ fun SearchLogBottomSheet(
             },
             trailingIcon = {
                 AnimatedVisibility(visible = query.isNotBlank()) {
-                    IconButton(onClick = { query = "" }) {
+                    IconButton(
+                        onClick = {
+                            query = ""
+                            viewModel.searchAnime("")
+                        }
+                    ) {
                         Icon(Icons.Outlined.Close, contentDescription = "Clear search")
                     }
                 }
@@ -108,53 +113,53 @@ fun SearchLogBottomSheet(
 
         Spacer(modifier = Modifier.height(BowlSpacing.md))
 
+        val displayState = if (query.length <= 2) AnimeUiState.Initial else searchUiState
         AnimatedContent(
-            targetState = when {
-                query.length <= 2 -> "idle"
-                uiState is AnimeUiState.Loading -> "loading"
-                uiState is AnimeUiState.Success -> "success"
-                uiState is AnimeUiState.Error -> "error"
-                else -> "idle"
-            },
+            targetState = displayState,
             label = "searchState"
         ) { state ->
             when (state) {
-                "idle" -> SearchIdleState(
+                AnimeUiState.Initial -> SearchIdleState(
                     recentSearches = recentSearches,
                     onSearchClick = {
                         query = it
                         viewModel.searchAnime(it)
                     }
                 )
-                "loading" -> Column(verticalArrangement = Arrangement.spacedBy(BowlSpacing.sm)) {
+                AnimeUiState.Loading -> Column(verticalArrangement = Arrangement.spacedBy(BowlSpacing.sm)) {
                     repeat(4) { LoadingCardPlaceholder() }
                 }
-                "success" -> {
-                    val list = (uiState as AnimeUiState.Success).animeList
-                    if (list.isEmpty()) {
-                        EmptyInlineState("No results", "Try a different title or spelling.")
-                    } else {
-                        LazyColumn(verticalArrangement = Arrangement.spacedBy(BowlSpacing.sm)) {
-                            items(list) { anime ->
-                                SearchResultRow(
-                                    title = anime.title,
-                                    metadata = "${anime.type.ifBlank { "Anime" }} • Rating ${anime.score}",
-                                    image = anime.image_url,
-                                    onClick = {
-                                        viewModel.setSelectedAnimeFromApi(anime)
-                                        onAnimeSelected()
-                                    }
-                                )
-                            }
-                        }
+                AnimeUiState.Empty -> EmptyInlineState("No results", "Try a different title or spelling.")
+                is AnimeUiState.Success -> SearchResults(
+                    results = state.animeList,
+                    onAnimeSelected = { anime ->
+                        viewModel.setSelectedAnimeFromApi(anime)
+                        onAnimeSelected()
                     }
-                }
-                "error" -> ErrorView(
-                    message = (uiState as AnimeUiState.Error).message,
+                )
+                is AnimeUiState.Error -> ErrorView(
+                    message = state.message,
                     modifier = Modifier.fillMaxWidth(),
                     onRetry = { if (query.length > 2) viewModel.searchAnime(query) }
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SearchResults(
+    results: List<com.example.animeapp.data.model.Anime>,
+    onAnimeSelected: (com.example.animeapp.data.model.Anime) -> Unit
+) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(BowlSpacing.sm)) {
+        items(results) { anime ->
+            SearchResultRow(
+                title = anime.title,
+                metadata = "${anime.type.ifBlank { "Anime" }} • Rating ${anime.score}",
+                image = anime.image_url,
+                onClick = { onAnimeSelected(anime) }
+            )
         }
     }
 }

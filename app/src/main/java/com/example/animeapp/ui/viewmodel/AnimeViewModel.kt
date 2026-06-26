@@ -5,16 +5,52 @@ import androidx.lifecycle.viewModelScope
 import com.example.animeapp.data.model.Anime
 import com.example.animeapp.data.repository.AnimeRepository
 import com.example.animeapp.ui.state.AnimeUiState
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+@OptIn(FlowPreview::class)
 class AnimeViewModel(
     private val repository: AnimeRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AnimeUiState>(AnimeUiState.Loading)
+    private val _uiState = MutableStateFlow<AnimeUiState>(AnimeUiState.Initial)
     val uiState: StateFlow<AnimeUiState> = _uiState
+
+    private val _searchUiState = MutableStateFlow<AnimeUiState>(AnimeUiState.Initial)
+    val searchUiState: StateFlow<AnimeUiState> = _searchUiState
+
+    private val searchQuery = MutableStateFlow("")
+
+    init {
+        viewModelScope.launch {
+            searchQuery
+                .map { it.trim() }
+                .debounce(350)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    if (query.length < 3) {
+                        _searchUiState.value = AnimeUiState.Initial
+                        return@collectLatest
+                    }
+
+                    _searchUiState.value = AnimeUiState.Loading
+                    try {
+                        val animeList = repository.searchAnime(query)
+                        _searchUiState.value = if (animeList.isEmpty()) {
+                            AnimeUiState.Empty
+                        } else {
+                            AnimeUiState.Success(animeList)
+                        }
+                    } catch (e: IOException) {
+                        _searchUiState.value = AnimeUiState.Error("Tidak ada koneksi internet. Perika jaringan Anda.")
+                    } catch (e: Exception) {
+                        _searchUiState.value = AnimeUiState.Error(e.message ?: "Pencarian gagal")
+                    }
+                }
+        }
+    }
 
     val favoriteList: StateFlow<List<Anime>> = repository.getFavAnime()
         .stateIn(
@@ -28,7 +64,7 @@ class AnimeViewModel(
             _uiState.value = AnimeUiState.Loading
             try {
                 val animeList = repository.getTopAnime()
-                _uiState.value = AnimeUiState.Success(animeList)
+                _uiState.value = if (animeList.isEmpty()) AnimeUiState.Empty else AnimeUiState.Success(animeList)
             } catch (e: IOException){
                 _uiState.value = AnimeUiState.Error("Tidak ada koneksi internet. Perika jaringan Anda.")
             }
@@ -40,20 +76,7 @@ class AnimeViewModel(
     }
 
     fun searchAnime(query: String) {
-        if (query.isBlank()) return
-        viewModelScope.launch {
-            _uiState.value = AnimeUiState.Loading
-            try {
-                val animeList = repository.searchAnime(query)
-                _uiState.value = AnimeUiState.Success(animeList)
-            } catch (e: IOException){
-                _uiState.value = AnimeUiState.Error("Tidak ada koneksi internet. Perika jaringan Anda.")
-            }
-
-            catch (e: Exception) {
-                _uiState.value = AnimeUiState.Error(e.message ?: "Pencarian gagal")
-            }
-        }
+        searchQuery.value = query
     }
 
     fun insertAnime(anime: Anime) = viewModelScope.launch {

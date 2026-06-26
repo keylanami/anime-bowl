@@ -135,11 +135,17 @@ fun HomeScreen(
                 )
             }
 
-            when (uiState) {
+            when (val state = uiState) {
+                AnimeUiState.Initial -> item { LoadingView() }
                 is AnimeUiState.Loading -> item { LoadingView() }
+                AnimeUiState.Empty -> item {
+                    CompactEmptyCard(
+                        title = "Nothing trending right now",
+                        message = "Try refreshing in a moment."
+                    )
+                }
                 is AnimeUiState.Success -> {
-                    val animeList = (uiState as AnimeUiState.Success).animeList
-                    val chunks = animeList.chunked(2)
+                    val chunks = state.animeList.chunked(2)
                     items(chunks) { rowItems ->
                         Row(
                             Modifier.padding(horizontal = BowlSpacing.xs),
@@ -174,7 +180,7 @@ fun HomeScreen(
                 }
                 is AnimeUiState.Error -> item {
                     ErrorView(
-                        message = (uiState as AnimeUiState.Error).message,
+                        message = state.message,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(BowlSpacing.xl),
