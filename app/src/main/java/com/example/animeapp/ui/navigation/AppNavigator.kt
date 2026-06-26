@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -26,6 +27,7 @@ import com.example.animeapp.ui.screen.FormScreen
 import com.example.animeapp.ui.screen.HomeScreen
 import com.example.animeapp.ui.screen.ProfileScreen
 import com.example.animeapp.ui.screen.TrashScreen
+import com.example.animeapp.ui.theme.BowlRadius
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +92,12 @@ fun AppNavigation(viewModel: AnimeViewModel) {
         if (showBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showBottomSheet = false },
-                sheetState = sheetState
+                sheetState = sheetState,
+                containerColor = MaterialTheme.colorScheme.background,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(
+                    topStart = BowlRadius.xl,
+                    topEnd = BowlRadius.xl
+                )
             ) {
                 SearchLogBottomSheet(viewModel, onAnimeSelected = {
                     showBottomSheet = false

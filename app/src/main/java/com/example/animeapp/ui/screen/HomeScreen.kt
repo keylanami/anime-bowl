@@ -1,33 +1,53 @@
 package com.example.animeapp.ui.screen
 
-import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.animeapp.R
 import com.example.animeapp.data.model.Anime
 import com.example.animeapp.data.remote.FirebaseAuthHelper
 import com.example.animeapp.ui.components.AnimeTopBar
+import com.example.animeapp.ui.components.EmptyFavView
+import com.example.animeapp.ui.components.ErrorView
 import com.example.animeapp.ui.components.LoadingView
 import com.example.animeapp.ui.components.TrendingAnimeItem
 import com.example.animeapp.ui.state.AnimeUiState
+import com.example.animeapp.ui.theme.BowlRadius
+import com.example.animeapp.ui.theme.BowlSpacing
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import com.example.animeapp.R
 
 @Composable
 fun HomeScreen(
@@ -35,11 +55,10 @@ fun HomeScreen(
     onNavigateToForm: (Anime, Boolean) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val reviewedList by viewModel.favoriteList.collectAsState()
+    val allReviews by viewModel.favoriteList.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var currentUser by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser) }
-
 
     DisposableEffect(Unit) {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -49,67 +68,54 @@ fun HomeScreen(
         onDispose { FirebaseAuth.getInstance().removeAuthStateListener(listener) }
     }
 
-    val allReviews by viewModel.favoriteList.collectAsState()
-    val myReviews = allReviews.filter { it.userId == currentUser?.uid }
+    val myReviews = remember(allReviews, currentUser) {
+        allReviews.filter { it.userId == currentUser?.uid }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadTopAnime()
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = BowlSpacing.xs)
+    ) {
         AnimeTopBar()
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 100.dp)
+            contentPadding = PaddingValues(bottom = 112.dp)
         ) {
+            item {
+                HomeHero(
+                    reviewCount = myReviews.size,
+                    isSignedIn = currentUser != null
+                )
+            }
 
             if (currentUser != null) {
-
-
                 item {
-                    Text(
-                        "Your Recent Reviews",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                    SectionHeader(
+                        title = "Recent reviews",
+                        subtitle = "A quick path back to what you have been watching."
                     )
                 }
-
                 if (myReviews.isEmpty()) {
                     item {
-                        Card(
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                    alpha = 0.5f
-                                )
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = "Kamu belum memberikan review akhir-akhir ini.",
-                                modifier = Modifier.padding(16.dp),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray
-                            )
-                        }
-                        HorizontalDivider(
-                            Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
-                            color = Color(0xFFF0F0F0)
+                        CompactEmptyCard(
+                            title = "No reviews yet",
+                            message = "Use search below to add your first anime log."
                         )
                     }
                 } else {
                     item {
                         LazyRow(
-                            contentPadding = PaddingValues(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            contentPadding = PaddingValues(horizontal = BowlSpacing.md),
+                            horizontalArrangement = Arrangement.spacedBy(BowlSpacing.xs)
                         ) {
-                            items(myReviews) { anime ->
-                                Box(modifier = Modifier.width(120.dp)) {
+                            items(myReviews.take(8)) { anime ->
+                                Box(modifier = Modifier.width(150.dp)) {
                                     TrendingAnimeItem(
                                         anime = anime,
                                         isReviewed = true,
@@ -118,20 +124,14 @@ fun HomeScreen(
                                 }
                             }
                         }
-                        Divider(
-                            Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
-                            color = Color(0xFFF0F0F0)
-                        )
                     }
                 }
             }
 
             item {
-                Text(
-                    "Discover Trending",
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                SectionHeader(
+                    title = "Trending now",
+                    subtitle = "Popular anime worth adding to your bowl."
                 )
             }
 
@@ -141,8 +141,11 @@ fun HomeScreen(
                     val animeList = (uiState as AnimeUiState.Success).animeList
                     val chunks = animeList.chunked(2)
                     items(chunks) { rowItems ->
-                        Row(Modifier.padding(horizontal = 8.dp)) {
-                            for (anime in rowItems) {
+                        Row(
+                            Modifier.padding(horizontal = BowlSpacing.xs),
+                            horizontalArrangement = Arrangement.spacedBy(BowlSpacing.xs)
+                        ) {
+                            rowItems.forEach { anime ->
                                 Box(Modifier.weight(1f)) {
                                     TrendingAnimeItem(
                                         anime = anime,
@@ -169,30 +172,86 @@ fun HomeScreen(
                         }
                     }
                 }
-
                 is AnimeUiState.Error -> item {
-                    val errorMessage = (uiState as AnimeUiState.Error).message
-                    Column(
+                    ErrorView(
+                        message = (uiState as AnimeUiState.Error).message,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = errorMessage,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.loadTopAnime() }) {
-                            Icon(Icons.Filled.Refresh, contentDescription = "Retry")
-                            Spacer(Modifier.width(8.dp))
-                            Text("Coba Lagi")
-                        }
-                    }
+                            .padding(BowlSpacing.xl),
+                        onRetry = { viewModel.loadTopAnime() }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HomeHero(reviewCount: Int, isSignedIn: Boolean) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = BowlSpacing.md, vertical = BowlSpacing.xs),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(BowlRadius.xl),
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
+    ) {
+        Row(
+            modifier = Modifier.padding(BowlSpacing.lg),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(BowlSpacing.md)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.AutoAwesome,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Column {
+                Text(
+                    text = if (isSignedIn) "$reviewCount reviews in your bowl" else "Curate your anime bowl",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.height(BowlSpacing.xxs))
+                Text(
+                    text = if (isSignedIn) "Browse trending picks or refine a recent review."
+                    else "Sign in when saving a review to keep your list synced.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String, subtitle: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = BowlSpacing.lg,
+                end = BowlSpacing.lg,
+                top = BowlSpacing.xl,
+                bottom = BowlSpacing.sm
+            )
+    ) {
+        Text(title, style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(BowlSpacing.xxs))
+        Text(
+            subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun CompactEmptyCard(title: String, message: String) {
+    Box(
+        modifier = Modifier
+            .height(180.dp)
+            .padding(horizontal = BowlSpacing.md)
+    ) {
+        EmptyFavView(title = title, message = message)
     }
 }

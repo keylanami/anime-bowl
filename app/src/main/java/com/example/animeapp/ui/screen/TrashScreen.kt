@@ -3,6 +3,7 @@ package com.example.animeapp.ui.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,6 +50,9 @@ import coil.compose.AsyncImage
 import com.example.animeapp.data.model.Anime
 import com.example.animeapp.data.remote.FirestoreHelper
 import com.example.animeapp.data.remote.getImageModel
+import com.example.animeapp.ui.components.EmptyFavView
+import com.example.animeapp.ui.theme.BowlRadius
+import com.example.animeapp.ui.theme.BowlSpacing
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -109,9 +115,12 @@ fun TrashScreen(
                 title = {
                     Text(
                         "Recycle Bin",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
@@ -126,51 +135,39 @@ fun TrashScreen(
                 .padding(paddingValues)
         ) {
             if (trashedItems.isEmpty()) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = null,
-                        modifier = Modifier.size(72.dp),
-                        tint = Color.LightGray
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Recycle bin kosong.",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Tidak ada log review yang dihapus.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                }
+                EmptyFavView(
+                    title = "Recycle bin is empty",
+                    message = "Deleted review logs will appear here before permanent removal."
+                )
             } else {
-                LazyColumn(Modifier.fillMaxSize()) {
+                LazyColumn(
+                    Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 24.dp, top = BowlSpacing.xs)
+                ) {
                     items(trashedItems) { anime ->
                         Card(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(BowlRadius.lg),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 6.dp)
+                                .padding(horizontal = BowlSpacing.md, vertical = BowlSpacing.xs)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(8.dp)
+                                modifier = Modifier.padding(BowlSpacing.sm)
                             ) {
                                 AsyncImage(
                                     model = getImageModel( anime.image_url),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(60.dp)
-                                        .clip(RoundedCornerShape(8.dp)),
+                                        .size(width = 58.dp, height = 78.dp)
+                                        .clip(RoundedCornerShape(BowlRadius.md)),
                                     contentScale = ContentScale.Crop
                                 )
-                                Spacer(Modifier.width(12.dp))
+                                Spacer(Modifier.width(BowlSpacing.md))
                                 Column(Modifier.weight(1f)) {
                                     Text(
                                         anime.title,
@@ -179,7 +176,7 @@ fun TrashScreen(
                                         fontWeight = FontWeight.SemiBold
                                     )
                                     Text(
-                                        "Dihapus",
+                                        "Deleted",
                                         color = MaterialTheme.colorScheme.error,
                                         style = MaterialTheme.typography.bodySmall
                                     )

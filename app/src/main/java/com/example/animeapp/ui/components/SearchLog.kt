@@ -1,16 +1,54 @@
 package com.example.animeapp.ui.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.example.animeapp.data.remote.getImageModel
 import com.example.animeapp.ui.state.AnimeUiState
+import com.example.animeapp.ui.theme.BowlRadius
+import com.example.animeapp.ui.theme.BowlSpacing
+import com.example.animeapp.ui.theme.bowlTextFieldColors
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 
 @Composable
@@ -19,65 +57,204 @@ fun SearchLogBottomSheet(
     onAnimeSelected: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
+    val recentSearches = remember { mutableStateListOf<String>() }
     val uiState by viewModel.uiState.collectAsState()
+    val focusRequester = remember { FocusRequester() }
 
-    Column(modifier = Modifier
-        .fillMaxHeight(0.8f)
-        .padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxHeight(0.86f)
+            .padding(horizontal = BowlSpacing.lg, vertical = BowlSpacing.md)
+    ) {
         Text(
-            text = "Log an anime...",
+            text = "Add to Bowl",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.SemiBold
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(BowlSpacing.sm))
 
         OutlinedTextField(
             value = query,
             onValueChange = {
                 query = it
-                if (it.length > 2) viewModel.searchAnime(it)
-            },
-            placeholder = {
-                Text("Search for an anime to review", color = Color.Gray)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when (uiState) {
-            is AnimeUiState.Loading -> CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-            is AnimeUiState.Success -> {
-                val list = (uiState as AnimeUiState.Success).animeList
-                LazyColumn {
-                    items(list) { anime ->
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = anime.title,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            },
-                            supportingContent = {
-                                Text(
-                                    text = anime.type,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.Gray
-                                )
-                            },
-                            modifier = Modifier.clickable {
-                                viewModel.setSelectedAnimeFromApi(anime)
-                                onAnimeSelected()
-                            }
-                        )
-                        HorizontalDivider(color = Color(0xFFF0F0F0))
+                if (it.length > 2) {
+                    viewModel.searchAnime(it)
+                    if (recentSearches.none { recent -> recent.equals(it, ignoreCase = true) }) {
+                        recentSearches.add(0, it)
+                        if (recentSearches.size > 4) recentSearches.removeLast()
                     }
                 }
-            }
+            },
+            leadingIcon = {
+                Icon(Icons.Outlined.Search, contentDescription = null)
+            },
+            trailingIcon = {
+                AnimatedVisibility(visible = query.isNotBlank()) {
+                    IconButton(onClick = { query = "" }) {
+                        Icon(Icons.Outlined.Close, contentDescription = "Clear search")
+                    }
+                }
+            },
+            placeholder = {
+                Text("Search anime title")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            singleLine = true,
+            shape = RoundedCornerShape(BowlRadius.lg),
+            colors = bowlTextFieldColors()
+        )
 
-            else -> {}
+        Spacer(modifier = Modifier.height(BowlSpacing.md))
+
+        AnimatedContent(
+            targetState = when {
+                query.length <= 2 -> "idle"
+                uiState is AnimeUiState.Loading -> "loading"
+                uiState is AnimeUiState.Success -> "success"
+                uiState is AnimeUiState.Error -> "error"
+                else -> "idle"
+            },
+            label = "searchState"
+        ) { state ->
+            when (state) {
+                "idle" -> SearchIdleState(
+                    recentSearches = recentSearches,
+                    onSearchClick = {
+                        query = it
+                        viewModel.searchAnime(it)
+                    }
+                )
+                "loading" -> Column(verticalArrangement = Arrangement.spacedBy(BowlSpacing.sm)) {
+                    repeat(4) { LoadingCardPlaceholder() }
+                }
+                "success" -> {
+                    val list = (uiState as AnimeUiState.Success).animeList
+                    if (list.isEmpty()) {
+                        EmptyInlineState("No results", "Try a different title or spelling.")
+                    } else {
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(BowlSpacing.sm)) {
+                            items(list) { anime ->
+                                SearchResultRow(
+                                    title = anime.title,
+                                    metadata = "${anime.type.ifBlank { "Anime" }} • Rating ${anime.score}",
+                                    image = anime.image_url,
+                                    onClick = {
+                                        viewModel.setSelectedAnimeFromApi(anime)
+                                        onAnimeSelected()
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                "error" -> ErrorView(
+                    message = (uiState as AnimeUiState.Error).message,
+                    modifier = Modifier.fillMaxWidth(),
+                    onRetry = { if (query.length > 2) viewModel.searchAnime(query) }
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun SearchIdleState(
+    recentSearches: List<String>,
+    onSearchClick: (String) -> Unit
+) {
+    if (recentSearches.isEmpty()) {
+        EmptyInlineState(
+            title = "Find your next review",
+            message = "Type at least three characters to search the anime catalog."
+        )
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(BowlSpacing.xs)) {
+            Text(
+                "Recent searches",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            recentSearches.forEach { recent ->
+                ListItem(
+                    headlineContent = { Text(recent) },
+                    leadingContent = {
+                        Icon(Icons.Outlined.History, contentDescription = null)
+                    },
+                    modifier = Modifier.clickable { onSearchClick(recent) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchResultRow(
+    title: String,
+    metadata: String,
+    image: String,
+    onClick: () -> Unit
+) {
+    val placeholder = MaterialTheme.colorScheme.surfaceVariant
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(BowlRadius.lg))
+            .clickable(onClick = onClick)
+            .padding(BowlSpacing.xs),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = getImageModel(image),
+            contentDescription = title,
+            contentScale = ContentScale.Crop,
+            placeholder = ColorPainter(placeholder),
+            error = ColorPainter(placeholder),
+            modifier = Modifier
+                .size(width = 56.dp, height = 76.dp)
+                .clip(RoundedCornerShape(BowlRadius.md))
+        )
+        Spacer(Modifier.width(BowlSpacing.md))
+        Column(Modifier.weight(1f)) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.height(BowlSpacing.xxs))
+            Text(
+                metadata,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptyInlineState(title: String, message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = BowlSpacing.xl),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(BowlSpacing.xs)
+    ) {
+        Icon(
+            Icons.Outlined.Search,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(36.dp)
+        )
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(
+            message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

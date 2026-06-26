@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,15 +29,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,19 +52,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import com.example.animeapp.R
-import com.example.animeapp.data.remote.FirestoreHelper
 import com.example.animeapp.data.remote.FirebaseAuthHelper
+import com.example.animeapp.data.remote.FirestoreHelper
 import com.example.animeapp.data.remote.encodeImageUriToBase64
 import com.example.animeapp.data.remote.getImageModel
+import com.example.animeapp.ui.theme.BowlRadius
+import com.example.animeapp.ui.theme.BowlSpacing
+import com.example.animeapp.ui.theme.bowlChipColors
+import com.example.animeapp.ui.theme.bowlTextFieldColors
 import com.example.animeapp.ui.viewmodel.AnimeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,6 +91,7 @@ fun FormScreen(
     }
 
     var score by remember { mutableStateOf("") }
+    var ratingSlider by remember { mutableFloatStateOf(0f) }
     var userNote by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Plan to Watch") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -98,6 +110,7 @@ fun FormScreen(
     LaunchedEffect(selectedAnime) {
         selectedAnime?.let {
             score = it.score.toString()
+            ratingSlider = it.score.toFloat().coerceIn(0f, 10f)
             userNote = it.userNote
             status = it.status.ifBlank { "Plan to Watch" }
         }
@@ -122,7 +135,7 @@ fun FormScreen(
         animeToSave?.let {
             if (animeId > 0) viewModel.updateAnime(it) else viewModel.insertAnime(it)
             FirestoreHelper.saveReviewToServer(uid, it)
-            Toast.makeText(context, "Log updated!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Log updated", Toast.LENGTH_SHORT).show()
             onNavigateUp()
         }
         isUploading = false
@@ -131,9 +144,14 @@ fun FormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Review Log") },
+                title = { Text("Review Log", fontWeight = FontWeight.SemiBold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
-                    IconButton(onClick = onNavigateUp) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                    IconButton(onClick = onNavigateUp) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
                 }
             )
         }
@@ -142,57 +160,111 @@ fun FormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = BowlSpacing.md)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(BowlSpacing.md)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable {
-                        cropperLauncher.launch(
-                            CropImageContractOptions(null, CropImageOptions(
+            ImagePickerCard(
+                image = if (imageUri != null) imageUri else getImageModel(selectedAnime?.image_url),
+                onClick = {
+                    cropperLauncher.launch(
+                        CropImageContractOptions(
+                            null,
+                            CropImageOptions(
                                 imageSourceIncludeGallery = true,
                                 imageSourceIncludeCamera = true,
                                 fixAspectRatio = true
-                            ))
+                            )
                         )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                AsyncImage(
-                    model = if (imageUri != null) imageUri else getImageModel(selectedAnime?.image_url),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    )
+                }
+            )
+
+            Column {
+                Text(
+                    text = selectedAnime?.title ?: "Loading anime",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "Tap to change image",
-                    color = Color.White,
-                    modifier = Modifier.background(Color.Black.copy(alpha = 0.5f)).padding(8.dp)
+                    text = selectedAnime?.type?.ifBlank { "Anime" } ?: "Anime",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Text(text = selectedAnime?.title ?: "Loading...", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Surface(
+                shape = RoundedCornerShape(BowlRadius.lg),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(BowlSpacing.md),
+                    verticalArrangement = Arrangement.spacedBy(BowlSpacing.md)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Rating", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            text = score.ifBlank { "0.0" },
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Slider(
+                        value = ratingSlider,
+                        onValueChange = {
+                            ratingSlider = it
+                            score = ((it * 10).roundToInt() / 10.0).toString()
+                        },
+                        valueRange = 0f..10f,
+                        steps = 19
+                    )
+                    OutlinedTextField(
+                        value = score,
+                        onValueChange = {
+                            score = it
+                            it.toFloatOrNull()?.let { parsed ->
+                                ratingSlider = parsed.coerceIn(0f, 10f)
+                            }
+                        },
+                        label = { Text("Rating (0.0 - 10.0)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(BowlRadius.md),
+                        colors = bowlTextFieldColors()
+                    )
+                }
+            }
 
-            OutlinedTextField(
-                value = score, onValueChange = { score = it }, label = { Text("Rating (0.0 - 10.0)") },
-                modifier = Modifier.fillMaxWidth(), singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = Color.Gray)
-            )
-
-            Text("Watch Status", fontWeight = FontWeight.SemiBold)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Watch Status", style = MaterialTheme.typography.titleSmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(BowlSpacing.xs)) {
                 statusOptions.forEach { opt ->
-                    FilterChip(selected = status == opt, onClick = { status = opt }, label = { Text(opt) })
+                    FilterChip(
+                        selected = status == opt,
+                        onClick = { status = opt },
+                        label = { Text(opt) },
+                        colors = bowlChipColors(),
+                        border = null
+                    )
                 }
             }
 
             OutlinedTextField(
-                value = userNote, onValueChange = { userNote = it }, label = { Text("Notes / Review") },
-                modifier = Modifier.fillMaxWidth().height(120.dp)
+                value = userNote,
+                onValueChange = { userNote = it },
+                label = { Text("Notes / Review") },
+                placeholder = { Text("What stood out?") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp),
+                shape = RoundedCornerShape(BowlRadius.lg),
+                colors = bowlTextFieldColors()
             )
 
             Button(
@@ -207,13 +279,16 @@ fun FormScreen(
 
                     scope.launch {
                         if (currentUser == null) {
-                            val user = FirebaseAuthHelper.signInWithGoogle(context, context.getString(R.string.default_web_client_id))
+                            val user = FirebaseAuthHelper.signInWithGoogle(
+                                context,
+                                context.getString(R.string.default_web_client_id)
+                            )
                             if (user != null) {
                                 currentUser = user
                                 performSave(user.uid, parsedScore)
                             } else {
                                 isUploading = false
-                                Toast.makeText(context, "Login diperlukan untuk menyimpan log", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Login is required to save a log", Toast.LENGTH_SHORT).show()
                             }
                         } else {
                             performSave(currentUser!!.uid, parsedScore)
@@ -221,11 +296,65 @@ fun FormScreen(
                     }
                 },
                 enabled = !isUploading,
-                modifier = Modifier.fillMaxWidth().height(56.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
             ) {
-                if (isUploading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                else Text("Save Log")
+                if (isUploading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                } else {
+                    Text("Save Log")
+                }
             }
+
+            Spacer(Modifier.height(BowlSpacing.lg))
+        }
+    }
+}
+
+@Composable
+private fun ImagePickerCard(
+    image: Any?,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(248.dp)
+            .clip(RoundedCornerShape(BowlRadius.xl))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = image,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(BowlSpacing.md)
+                .clip(RoundedCornerShape(BowlRadius.pill))
+                .background(Color.Black.copy(alpha = 0.48f))
+                .padding(horizontal = BowlSpacing.md, vertical = BowlSpacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(BowlSpacing.xs)
+        ) {
+            Icon(
+                Icons.Outlined.Image,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = "Change image",
+                color = Color.White,
+                style = MaterialTheme.typography.labelMedium
+            )
         }
     }
 }

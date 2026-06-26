@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.example.animeapp.ui.theme.BowlSpacing
 
 @Preview(showBackground = true)
 @Composable
@@ -17,12 +17,12 @@ fun AnimeTopBar() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 17.dp)
+            .padding(horizontal = BowlSpacing.lg, vertical = BowlSpacing.lg)
     ) {
         Text(
             text = "Anime Bowl",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleLarge
+            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.headlineSmall
         )
     }
 }
